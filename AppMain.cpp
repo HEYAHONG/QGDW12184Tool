@@ -65,18 +65,18 @@ void AppDialog::OnButtonClickCheckFrameParseCRC( wxCommandEvent& event )
     wxArrayString strlist=GetFrameParseInputHex();
     for(size_t i=0;i<strlist.size();i++)
     {
-        AppendFrameParseLog(wxString(_T("数据帧(Hex):"))+strlist[i]);
+        AppendFrameParseLog(wxString(_T("数据帧(Hex):\n"))+strlist[i]+_T("\n"));
         std::string frame_bin=HexToBin(strlist[i].ToStdString());
         if(qgdw12184_crc_check((uint8_t*)frame_bin.c_str(),frame_bin.length()))
         {
-            AppendFrameParseLog(wxString(_T(" CRC校验正确!\n")));
+            AppendFrameParseLog(wxString(_T("CRC校验正确!\n")));
         }
         else
         {
-            AppendFrameParseLog(wxString(_T(" CRC校验错误!")));
+            AppendFrameParseLog(wxString(_T("CRC校验错误!")));
             //修正CRC
             qgdw12184_crc_append((uint8_t*)frame_bin.c_str(),frame_bin.length());
-            AppendFrameParseLog(wxString(_T(" 修正CRC后数据帧:"))+BinToHex(frame_bin)+_T("\n"));
+            AppendFrameParseLog(wxString(_T(" 修正CRC后数据帧:\n"))+BinToHex(frame_bin)+_T("\n"));
 
         }
     }
