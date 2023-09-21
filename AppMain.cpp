@@ -18,6 +18,7 @@
 #include "AppMain.h"
 #include "Version.h"
 #include "qgdw12184_crc.h"
+#include "libserialport.h"
 #include <wx/regex.h>
 
 AppDialog::AppDialog(wxDialog *dlg)
@@ -54,7 +55,7 @@ void AppDialog::OnButtonClickClearFrameParseLog( wxCommandEvent& event )
 void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
 {
     wxArrayString strlist=GetFrameParseInputHex();
-    for(size_t i=0;i<strlist.size();i++)
+    for(size_t i=0; i<strlist.size(); i++)
     {
         AppendFrameParseLog(wxString(_T("已找到数据帧(Hex):"))+strlist[i]+_T("\n"));
     }
@@ -63,7 +64,7 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
 void AppDialog::OnButtonClickCheckFrameParseCRC( wxCommandEvent& event )
 {
     wxArrayString strlist=GetFrameParseInputHex();
-    for(size_t i=0;i<strlist.size();i++)
+    for(size_t i=0; i<strlist.size(); i++)
     {
         AppendFrameParseLog(wxString(_T("数据帧(Hex):\n"))+strlist[i]+_T("\n"));
         std::string frame_bin=HexToBin(strlist[i].ToStdString());
@@ -94,8 +95,16 @@ void AppDialog::InitAboutTextCtrl(wxTextCtrl* m_ctrl)
         //输出版本号
         m_ctrl->AppendText(_T("QGDW12184Tool BY HYH"));
         m_ctrl->AppendText(_T("\n"));
-        m_ctrl->AppendText(wxString(_T("程序版本号:"))+PROJECT_VERSION_STR);
+        m_ctrl->AppendText(wxString(_T("程序版本号:\t"))+PROJECT_VERSION_STR);
         m_ctrl->AppendText(_T("\n"));
+    }
+
+    {
+        //libserialport版本号
+        m_ctrl->AppendText(_T("\n"));
+        m_ctrl->AppendText(wxString(_T("libserialport:\t"))+sp_get_lib_version_string());
+        m_ctrl->AppendText(_T("\n"));
+
     }
 
     {
@@ -166,9 +175,9 @@ std::string AppDialog::HexToBin(std::string hex)
     {
         return std::string();
     }
-    uint8_t buff[hex.length()]={0};
+    uint8_t buff[hex.length()]= {0};
     size_t bin_count=0;
-    for(size_t i=0;i<hex.length()/2;i++)
+    for(size_t i=0; i<hex.length()/2; i++)
     {
         bin_count++;
         try
@@ -186,10 +195,10 @@ std::string AppDialog::HexToBin(std::string hex)
 std::string  AppDialog::BinToHex(std::string bin)
 {
     std::string ret;
-    for(size_t i=0;i<bin.length();i++)
+    for(size_t i=0; i<bin.length(); i++)
     {
         uint8_t *bin_start=(uint8_t *)bin.c_str();
-        char buff[32]={0};
+        char buff[32]= {0};
         sprintf(buff,"%02X",(int)bin_start[i]);
         ret+=buff;
     }
