@@ -47,6 +47,11 @@ endif()
 include(${wxWidgets_USE_FILE})
 target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
 
+include(FindPkgConfig)
+#libserialport
+pkg_check_modules(LibSerialPort REQUIRED IMPORTED_TARGET libserialport)
+target_link_libraries(${PROJECT_NAME} PkgConfig::LibSerialPort)
+
 include(GNUInstallDirs)
 
 #添加组件(components)

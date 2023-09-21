@@ -22,4 +22,5 @@
 # 依赖库
 
 - [wxWidgets](https://github.com/wxWidgets/wxWidgets):C++ GUI库。
+- [libserialport](https://sigrok.org/wiki/Libserialport):跨平台串口库，支持多种串口(原生串口、USB转串口、蓝牙串口等)，封装常用的串口功能（如枚举）。
 
