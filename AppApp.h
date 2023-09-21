@@ -11,6 +11,7 @@
 #define APPAPP_H
 
 #include <wx/app.h>
+#include "wxrc.h"
 
 class AppApp : public wxApp
 {
