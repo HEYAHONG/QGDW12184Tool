@@ -18,6 +18,7 @@
 #include "AppMain.h"
 #include "Version.h"
 #include "qgdw12184_crc.h"
+#include "qgdw12184_frame.h"
 #include "libserialport.h"
 #include <wx/regex.h>
 
@@ -57,7 +58,31 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
     wxArrayString strlist=GetFrameParseInputHex();
     for(size_t i=0; i<strlist.size(); i++)
     {
-        AppendFrameParseLog(wxString(_T("已找到数据帧(Hex):"))+strlist[i]+_T("\n"));
+        AppendFrameParseLog(wxString(_T("已找到数据帧(Hex):\n"))+strlist[i]+_T("\n"));
+        std::string frame_bin=HexToBin(strlist[i].ToStdString());
+        if(qgdw12184_crc_check((uint8_t*)frame_bin.c_str(),frame_bin.length()))
+        {
+
+            {
+                //传感器ID
+                qgdw12184_frame_sensor_id_t sensor_id;
+                qgdw12184_frame_get_sensor_id((uint8_t*)frame_bin.c_str(),frame_bin.length(),&sensor_id);
+                char buff[1024]={0};
+                sprintf(buff,"ManufacturerID=%04X(%d),VersionLetter=%02X(%d=%c),VersionNumber=%02X(%d),SerialNumber=%08X(%d)\n",(int)sensor_id.manufacturer_id,(int)sensor_id.manufacturer_id,(int)sensor_id.version_letter,(int)sensor_id.version_letter,'a'+sensor_id.version_letter-1,(int)sensor_id.version_number,(int)sensor_id.version_number,(int)sensor_id.serial_number,(int)sensor_id.serial_number);
+                AppendFrameParseLog(buff);
+            }
+
+            {
+                //数据包头
+                qgdw12184_frame_packet_header_t packet_header;
+                qgdw12184_frame_get_packet_header((uint8_t*)frame_bin.c_str(),frame_bin.length(),&packet_header);
+                char buff[1024]={0};
+                sprintf(buff,"DataLen=%d,FragInd=%d(%s),PacketType=%d(%s)\n",packet_header.data_len,packet_header.frag_ind,qgdw12184_frame_packet_header_frag_ind_str(static_cast<qgdw12184_frame_packet_header_frag_ind_t>(packet_header.frag_ind)),packet_header.packet_type,qgdw12184_frame_packet_header_packet_type_str(static_cast<qgdw12184_frame_packet_header_packet_type_t>(packet_header.packet_type)));
+                AppendFrameParseLog(buff);
+
+            }
+
+        }
     }
 }
 

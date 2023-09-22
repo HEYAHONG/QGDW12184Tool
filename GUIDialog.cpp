@@ -44,7 +44,7 @@ GUIDialog::GUIDialog( wxWindow* parent, wxWindowID id, const wxString& title, co
 	m_button_clear_frame_parse_log = new wxButton( m_panel_frame_parse, wxID_ANY, wxT("清除日志"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer3->Add( m_button_clear_frame_parse_log, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_button_get_frame_parse_hex = new wxButton( m_panel_frame_parse, wxID_ANY, wxT("提取HEX"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_button_get_frame_parse_hex = new wxButton( m_panel_frame_parse, wxID_ANY, wxT("提取数据帧(HEX)"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer3->Add( m_button_get_frame_parse_hex, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
 	m_button_check_frame_parse_crc = new wxButton( m_panel_frame_parse, wxID_ANY, wxT("检查CRC"), wxDefaultPosition, wxDefaultSize, 0 );
