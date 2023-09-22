@@ -80,7 +80,7 @@ typedef enum
     QGDW12184_PACKET_HEADER_PACKET_TYPE_CONTROL=4,/**< 控制报文 */
     QGDW12184_PACKET_HEADER_PACKET_TYPE_CONTROL_RESP=5,/**< 控制报文响应 */
     QGDW12184_PACKET_HEADER_PACKET_TYPE_FRAGMENT_ACK=6,/**< 分片应答报文 */
-    QGDW12184_PACKET_HEADER_PACKET_TYPE_RESERVED=7,/**< 告警数据报文响应 */
+    QGDW12184_PACKET_HEADER_PACKET_TYPE_RESERVED=7,/**< 保留 */
 
 } qgdw12184_frame_packet_header_packet_type_t;/**< 数据包头报文类型 */
 
