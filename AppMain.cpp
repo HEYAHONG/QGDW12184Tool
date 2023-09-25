@@ -96,7 +96,7 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
                             {
                                 {
                                     char buff[1024];
-                                    sprintf(buff,"Data Index=%d,Data Type=%04X(%d),Data Length=%d,Data:\n",(int)index,(int)data_header->data_type,(int)data_header->data_type,data_content_length);
+                                    sprintf(buff,"Data Index=%d,Data Type=%04X(%d),Data Length=%d,Data:\n",(int)index,(int)data_header->data_type,(int)data_header->data_type,(int)data_content_length);
                                     dlg->AppendFrameParseLog(buff);
                                 }
 
