@@ -117,6 +117,36 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
                     }
                 }
                 break;
+                case QGDW12184_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA_RESP:
+                {
+                    //本程序只支持非分片
+                    if(packet_header.frag_ind==0)
+                    {
+                        auto on_monitor_resp=[](void *usr,const qgdw12184_frame_sensor_id_t *sensor_id,const qgdw12184_frame_packet_header_t *packet_header,qgdw12184_frame_monitor_resp_status_t status)
+                        {
+                            AppDialog *dlg=(AppDialog*)usr;
+                            if(dlg!=NULL)
+                            {
+                                switch(status)
+                                {
+                                case QGDW12184_FRAME_MONITOR_RESP_STATUS_FAILURE:
+                                {
+                                    dlg->AppendFrameParseLog(_T("Status=Failure\n"));
+                                }
+                                break;
+                                case QGDW12184_FRAME_MONITOR_RESP_STATUS_SUCCESS:
+                                {
+                                    dlg->AppendFrameParseLog(_T("Status=Success\n"));
+                                }
+                                break;
+                                }
+                            }
+
+                        };
+                        qgdw12184_frame_monitor_resp_no_fragment_parse((uint8_t*)frame_bin.c_str(),frame_bin.length(),on_monitor_resp,this);
+                    }
+                }
+                break;
                 default:
                 {
 

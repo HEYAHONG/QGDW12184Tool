@@ -209,7 +209,7 @@ uint8_t * qgdw12184_frame_get_data_content_ptr(uint8_t *data,size_t data_len);
 typedef void (*qgdw12184_frame_monitor_data_callback_t)(void *usr,const qgdw12184_frame_sensor_id_t *sensor_id,const qgdw12184_frame_packet_header_t *packet_header,size_t index,const qgdw12184_frame_data_header_t *data_header,const uint8_t *data_content,size_t data_content_length);
 
 
-/** \brief QGDW12184 监测报文解析
+/** \brief QGDW12184 监测报文(无分片)解析
  *
  * \param frame uint8_t* 帧起始地址
  * \param frame_len size_t 帧长度
@@ -218,6 +218,33 @@ typedef void (*qgdw12184_frame_monitor_data_callback_t)(void *usr,const qgdw1218
  *
  */
 void qgdw12184_frame_monitor_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_monitor_data_callback_t on_monitor,void *usr);
+
+typedef enum
+{
+    QGDW12184_FRAME_MONITOR_RESP_STATUS_SUCCESS=0xFF,/**< 发送成功 */
+    QGDW12184_FRAME_MONITOR_RESP_STATUS_FAILURE=0x0 /**< 发送失败 */
+} qgdw12184_frame_monitor_resp_status_t;/**< 监测报文响应状态 */
+
+/** \brief  QGDW12184 监测报文响应状态回调
+ *
+ * \param usr void* 用户参数(由用户自定义)
+ * \param sensor_id const qgdw12184_frame_sensor_id_t* 传感器id（不可写入）
+ * \param packet_header const qgdw12184_frame_packet_header_t* 数据包头ings(不可写入)
+ * \param status  qgdw12184_frame_monitor_resp_status_t 响应状态
+ *
+ */
+typedef void (*qgdw12184_frame_monitor_resp_status_callback_t)(void *usr,const qgdw12184_frame_sensor_id_t *sensor_id,const qgdw12184_frame_packet_header_t *packet_header,qgdw12184_frame_monitor_resp_status_t status);
+
+
+/** \brief QGDW12184 监测响应报文(无分片)解析
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \param on_monitor_resp qgdw12184_frame_monitor_resp_status_callback_t 监测报文响应状态回调
+ * \param usr void* 用户参数(由用户自定义)
+ *
+ */
+void qgdw12184_frame_monitor_resp_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_monitor_resp_status_callback_t on_monitor_resp,void *usr);
 
 #ifdef __cplusplus
 }

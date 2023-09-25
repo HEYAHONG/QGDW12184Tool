@@ -258,7 +258,7 @@ void qgdw12184_frame_monitor_no_fragment_parse(uint8_t *frame,size_t frame_len,q
     {
         uint8_t *data_start=&frame[7];
         size_t data_len=frame_len-9;
-        for(size_t i=0;i<packet_header.data_len;i++)
+        for(size_t i=0; i<packet_header.data_len; i++)
         {
             size_t data_capacity=qgdw12184_frame_get_data_capacity(data_start,data_len);
             size_t data_content_length=qgdw12184_frame_get_data_content_length(data_start,data_len);
@@ -278,6 +278,36 @@ void qgdw12184_frame_monitor_no_fragment_parse(uint8_t *frame,size_t frame_len,q
                 data_len-=data_capacity;
                 data_start+=data_capacity;
             }
+        }
+    }
+}
+
+void qgdw12184_frame_monitor_resp_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_monitor_resp_status_callback_t on_monitor_resp,void *usr)
+{
+    if(frame==NULL || frame_len < 9 || on_monitor_resp==NULL)
+    {
+        return;
+    }
+
+    if(!qgdw12184_crc_check(frame,frame_len))
+    {
+        return;
+    }
+
+    qgdw12184_frame_sensor_id_t sensor_id;
+    qgdw12184_frame_get_sensor_id(frame,frame_len,&sensor_id);
+    qgdw12184_frame_packet_header_t packet_header;
+    qgdw12184_frame_get_packet_header(frame,frame_len,&packet_header);
+    if(packet_header.packet_type==QGDW12184_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA_RESP)
+    {
+        uint8_t status=frame[7];
+        if(status==QGDW12184_FRAME_MONITOR_RESP_STATUS_SUCCESS)
+        {
+            on_monitor_resp(usr,&sensor_id,&packet_header,QGDW12184_FRAME_MONITOR_RESP_STATUS_SUCCESS);
+        }
+        if(status==QGDW12184_FRAME_MONITOR_RESP_STATUS_FAILURE)
+        {
+            on_monitor_resp(usr,&sensor_id,&packet_header,QGDW12184_FRAME_MONITOR_RESP_STATUS_FAILURE);
         }
     }
 }
