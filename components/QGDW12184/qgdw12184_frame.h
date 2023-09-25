@@ -111,6 +111,114 @@ void qgdw12184_frame_set_packet_header(uint8_t *frame,size_t frame_len,qgdw12184
  */
 void qgdw12184_frame_get_packet_header(uint8_t *frame,size_t frame_len,qgdw12184_frame_packet_header_t *packet_header);
 
+typedef union
+{
+    uint16_t data_type;
+    struct
+    {
+        uint16_t data_type_code:11;/**<  编码*/
+        uint16_t data_type_char:3;/**< 特征 */
+    };
+
+} qgdw12184_frame_data_type_t; /**< 参量类型 */
+
+/** \brief QGDW12184 参量类型转Uint
+ *
+ * \param data_type qgdw12184_frame_data_type_t* 参量类型
+ * \return uint16 Uint类型参量类型
+ *
+ */
+uint16_t qgdw12184_frame_data_type_to_uint(qgdw12184_frame_data_type_t *data_type);
+
+
+/** \brief QGDW12184 Uint转参量类型
+ *
+ * \param data_type qgdw12184_frame_data_type_t* 参量类型
+ * \param data_type_u uint16_t Uint类型参量类型
+ *
+ */
+void qgdw12184_frame_data_type_from_uint(qgdw12184_frame_data_type_t *data_type,uint16_t data_type_u);
+
+typedef union
+{
+    uint16_t data_header;
+    struct
+    {
+        uint16_t data_length_flag:2;/**< 数据长度，0=4字节，其余数据表示后接几个字节作为数据长度 */
+        uint16_t data_type:14;/**< 参量类型(Uint类型) */
+    };
+} qgdw12184_frame_data_header_t;/**< (单个）参量头 */
+
+/** \brief QGDW12184 设置参量头到(单个)参量数据
+ *
+ * \param data uint8_t* (单个)参量数据起始地址
+ * \param data_len size_t (单个)参量数据长度（可大不可小）
+ * \param data_header qgdw12184_frame_data_header_t* (单个）参量头
+ *
+ */
+void qgdw12184_frame_set_data_header(uint8_t *data,size_t data_len,qgdw12184_frame_data_header_t *data_header);
+
+/** \brief QGDW12184 从(单个)参量数据获取参量头
+ *
+ * \param data uint8_t* (单个)参量数据起始地址
+ * \param data_len size_t (单个)参量数据长度（可大不可小）
+ * \param data_header qgdw12184_frame_data_header_t* (单个）参量头
+ *
+ */
+void qgdw12184_frame_get_data_header(uint8_t *data,size_t data_len,qgdw12184_frame_data_header_t *data_header);
+
+/** \brief QGDW12184 获取(单个)参量占用空间
+ *
+ * \param data uint8_t* (单个)参量数据起始地址
+ * \param data_len size_t (单个)参量数据长度（可大不可小）
+ * \return size_t (单个)参量占用空间(包括参量头、参量数据长度，参量数据内容)，失败返回0
+ *
+ */
+size_t qgdw12184_frame_get_data_capacity(uint8_t *data,size_t data_len);
+
+/** \brief QGDW12184 获取(单个)参量内容长度
+ *
+ * \param data uint8_t* (单个)参量数据起始地址
+ * \param data_len size_t (单个)参量数据长度（可大不可小）
+ * \return size_t (单个)参量内容长度
+ *
+ */
+size_t qgdw12184_frame_get_data_content_length(uint8_t *data,size_t data_len);
+
+/** \brief  QGDW12184 获取(单个)参量内容指针
+ *
+ * \param data uint8_t* (单个)参量数据起始地址
+ * \param data_len size_t (单个)参量数据长度（可大不可小）
+ * \return uint8_t* (单个)参量内容指针,失败返回NULL
+ *
+ */
+uint8_t * qgdw12184_frame_get_data_content_ptr(uint8_t *data,size_t data_len);
+
+
+/** \brief  QGDW12184 监测报文参量回调
+ *
+ * \param usr void* 用户参数(由用户自定义)
+ * \param sensor_id const qgdw12184_frame_sensor_id_t* 传感器id（不可写入）
+ * \param packet_header const qgdw12184_frame_packet_header_t* 数据包头ings(不可写入)
+ * \param index size_t 参量引索，从0开始
+ * \param data_header const qgdw12184_frame_data_header_t* 参量头
+ * \param data_content const uint8_t* 参量内容
+ * \param data_content_length size_t 参量内容长度
+ *
+ */
+typedef void (*qgdw12184_frame_monitor_data_callback_t)(void *usr,const qgdw12184_frame_sensor_id_t *sensor_id,const qgdw12184_frame_packet_header_t *packet_header,size_t index,const qgdw12184_frame_data_header_t *data_header,const uint8_t *data_content,size_t data_content_length);
+
+
+/** \brief QGDW12184 监测报文解析
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \param on_monitor qgdw12184_frame_monitor_data_callback_t 监测报文参量回调
+ * \param usr void* 用户参数(由用户自定义)
+ *
+ */
+void qgdw12184_frame_monitor_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_monitor_data_callback_t on_monitor,void *usr);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

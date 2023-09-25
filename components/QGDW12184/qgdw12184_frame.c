@@ -98,3 +98,186 @@ void qgdw12184_frame_get_packet_header(uint8_t *frame,size_t frame_len,qgdw12184
 
     packet_header->packet_header=frame[6];
 }
+
+uint16_t qgdw12184_frame_data_type_to_uint(qgdw12184_frame_data_type_t *data_type)
+{
+    if(data_type==NULL)
+    {
+        return 0;
+    }
+    return data_type->data_type;
+}
+
+void qgdw12184_frame_data_type_from_uint(qgdw12184_frame_data_type_t *data_type,uint16_t data_type_u)
+{
+    if(data_type!=NULL)
+    {
+        data_type->data_type=data_type_u;
+    }
+}
+
+void qgdw12184_frame_set_data_header(uint8_t *data,size_t data_len,qgdw12184_frame_data_header_t *data_header)
+{
+    if(data==NULL || data_len <2 || data_header==NULL)
+    {
+        return;
+    }
+    data[0]=(data_header->data_header &0xFF);
+    data[1]=((data_header->data_header >> 8)&0xFF);
+}
+
+void qgdw12184_frame_get_data_header(uint8_t *data,size_t data_len,qgdw12184_frame_data_header_t *data_header)
+{
+    if(data==NULL || data_len <2 || data_header==NULL)
+    {
+        return;
+    }
+    data_header->data_header=data[1];
+    data_header->data_header<<=8;
+    data_header->data_header+=data[0];
+}
+
+size_t qgdw12184_frame_get_data_capacity(uint8_t *data,size_t data_len)
+{
+    size_t ret=0;
+    if(data==NULL || data_len <2)
+    {
+        return 0;
+    }
+    qgdw12184_frame_data_header_t header= {0};
+    qgdw12184_frame_get_data_header(data,data_len,&header);
+    if(header.data_length_flag==0)
+    {
+        size_t data_content_length=qgdw12184_frame_get_data_content_length(data,data_len);
+        //头+4字节数据
+        ret=sizeof(header)+data_content_length;
+    }
+    else
+    {
+        size_t data_content_length=qgdw12184_frame_get_data_content_length(data,data_len);
+        //头+数据长度+数据内容长度
+        ret=sizeof(header)+header.data_length_flag+data_content_length;
+    }
+
+    if(ret>data_len)
+    {
+        return 0;
+    }
+    else
+    {
+        return ret;
+    }
+}
+
+size_t qgdw12184_frame_get_data_content_length(uint8_t *data,size_t data_len)
+{
+    size_t ret=0;
+    if(data==NULL || data_len <2)
+    {
+        return 0;
+    }
+    qgdw12184_frame_data_header_t header= {0};
+    qgdw12184_frame_get_data_header(data,data_len,&header);
+    switch(header.data_length_flag)
+    {
+    case 1:
+    {
+        if(data_len>=sizeof(header)+1)
+        {
+            ret=data[sizeof(header)];
+        }
+    }
+    break;
+    case 2:
+    {
+        if(data_len>=sizeof(header)+2)
+        {
+            ret=data[sizeof(header)+1];
+            ret<<=8;
+            ret+=data[sizeof(header)];
+        }
+    }
+    break;
+    case 3:
+    {
+        if(data_len>=sizeof(header)+3)
+        {
+            ret=data[sizeof(header)+2];
+            ret<<=8;
+            ret+=data[sizeof(header)+1];
+            ret<<=8;
+            ret+=data[sizeof(header)];
+        }
+    }
+    break;
+    default:
+    {
+        //默认4字节数据
+        ret=4;
+    }
+    break;
+    }
+    return ret;
+}
+
+uint8_t * qgdw12184_frame_get_data_content_ptr(uint8_t *data,size_t data_len)
+{
+    if(data==NULL || data_len <2)
+    {
+        return NULL;
+    }
+
+    size_t data_capacity=qgdw12184_frame_get_data_capacity(data,data_len);
+    size_t data_content_length=qgdw12184_frame_get_data_content_length(data,data_len);
+
+    if(data_capacity > data_content_length && data_capacity!=0 && data_content_length!=0)
+    {
+        return &data[data_capacity-data_content_length];
+    }
+
+    return NULL;
+}
+
+void qgdw12184_frame_monitor_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_monitor_data_callback_t on_monitor,void *usr)
+{
+    if(frame==NULL || frame_len < 9 || on_monitor==NULL)
+    {
+        return;
+    }
+
+    if(!qgdw12184_crc_check(frame,frame_len))
+    {
+        return;
+    }
+
+    qgdw12184_frame_sensor_id_t sensor_id;
+    qgdw12184_frame_get_sensor_id(frame,frame_len,&sensor_id);
+    qgdw12184_frame_packet_header_t packet_header;
+    qgdw12184_frame_get_packet_header(frame,frame_len,&packet_header);
+    if(packet_header.packet_type==QGDW12184_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA)
+    {
+        uint8_t *data_start=&frame[7];
+        size_t data_len=frame_len-9;
+        for(size_t i=0;i<packet_header.data_len;i++)
+        {
+            size_t data_capacity=qgdw12184_frame_get_data_capacity(data_start,data_len);
+            size_t data_content_length=qgdw12184_frame_get_data_content_length(data_start,data_len);
+            uint8_t *data_content_ptr=qgdw12184_frame_get_data_content_ptr(data_start,data_len);
+            qgdw12184_frame_data_header_t data_header;
+            qgdw12184_frame_get_data_header(data_start,data_len,&data_header);
+            if(data_capacity!=0 && data_content_ptr!=NULL && data_content_length > 0)
+            {
+                on_monitor(usr,&sensor_id,&packet_header,i,&data_header,data_content_ptr,data_content_length);
+            }
+            else
+            {
+                break;
+            }
+            if(data_capacity <= data_len)
+            {
+                data_len-=data_capacity;
+                data_start+=data_capacity;
+            }
+        }
+    }
+}
