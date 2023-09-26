@@ -147,6 +147,69 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
                     }
                 }
                 break;
+                case QGDW12184_PACKET_HEADER_PACKET_TYPE_ALARM_DATA:
+                {
+                    //本程序只支持非分片
+                    if(packet_header.frag_ind==0)
+                    {
+                        auto on_alarm=[](void *usr,const qgdw12184_frame_sensor_id_t *sensor_id,const qgdw12184_frame_packet_header_t *packet_header,size_t index,const qgdw12184_frame_data_header_t *data_header,const uint8_t *data_content,size_t data_content_length)
+                        {
+                            AppDialog *dlg=(AppDialog*)usr;
+                            if(dlg!=NULL)
+                            {
+                                {
+                                    char buff[1024];
+                                    sprintf(buff,"Data Index=%d,Data Type=%04X(%d),Data Length=%d,Data:\n",(int)index,(int)data_header->data_type,(int)data_header->data_type,(int)data_content_length);
+                                    dlg->AppendFrameParseLog(buff);
+                                }
+
+                                {
+                                    if(data_content!=NULL && data_content_length!=0)
+                                    {
+                                        std::string data((char *)data_content,data_content_length);
+                                        dlg->AppendFrameParseLog(_T("\t"));
+                                        dlg->AppendFrameParseLog(dlg->BinToHex(data));
+                                        dlg->AppendFrameParseLog(_T("\n"));
+                                    }
+                                }
+
+                            }
+
+                        };
+                        qgdw12184_frame_alarm_no_fragment_parse((uint8_t*)frame_bin.c_str(),frame_bin.length(),on_alarm,this);
+                    }
+                }
+                break;
+                case QGDW12184_PACKET_HEADER_PACKET_TYPE_ALARM_DATA_RESP:
+                {
+                    //本程序只支持非分片
+                    if(packet_header.frag_ind==0)
+                    {
+                        auto on_alarm_resp=[](void *usr,const qgdw12184_frame_sensor_id_t *sensor_id,const qgdw12184_frame_packet_header_t *packet_header,qgdw12184_frame_alarm_resp_status_t status)
+                        {
+                            AppDialog *dlg=(AppDialog*)usr;
+                            if(dlg!=NULL)
+                            {
+                                switch(status)
+                                {
+                                case QGDW12184_FRAME_ALARM_RESP_STATUS_FAILURE:
+                                {
+                                    dlg->AppendFrameParseLog(_T("Status=Failure\n"));
+                                }
+                                break;
+                                case QGDW12184_FRAME_ALARM_RESP_STATUS_SUCCESS:
+                                {
+                                    dlg->AppendFrameParseLog(_T("Status=Success\n"));
+                                }
+                                break;
+                                }
+                            }
+
+                        };
+                        qgdw12184_frame_alarm_resp_no_fragment_parse((uint8_t*)frame_bin.c_str(),frame_bin.length(),on_alarm_resp,this);
+                    }
+                }
+                break;
                 default:
                 {
 
