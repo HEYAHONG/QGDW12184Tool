@@ -313,6 +313,10 @@ wxArrayString AppDialog::GetFrameParseInputHex(wxString input)
     }
     //去除空格
     input_str.Replace(_T(" "),_T(""));
+    //去除回车换行符
+    input_str.Replace(_T("\r"),_T(""));
+    input_str.Replace(_T("\n"),_T(""));
+
     wxRegEx reFrame(_T("([0-9a-fA-F]{2}){6,}"));
     if(reFrame.IsValid())
     {
