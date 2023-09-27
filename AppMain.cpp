@@ -84,7 +84,7 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
                 }
                 switch(static_cast<qgdw12184_frame_packet_header_packet_type_t>(packet_header.packet_type))
                 {
-                case QGDW12184_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA:
+                case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA:
                 {
                     //本程序只支持非分片
                     if(packet_header.frag_ind==0)
@@ -117,7 +117,7 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
                     }
                 }
                 break;
-                case QGDW12184_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA_RESP:
+                case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA_RESP:
                 {
                     //本程序只支持非分片
                     if(packet_header.frag_ind==0)
@@ -147,7 +147,7 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
                     }
                 }
                 break;
-                case QGDW12184_PACKET_HEADER_PACKET_TYPE_ALARM_DATA:
+                case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_ALARM_DATA:
                 {
                     //本程序只支持非分片
                     if(packet_header.frag_ind==0)
@@ -180,7 +180,7 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
                     }
                 }
                 break;
-                case QGDW12184_PACKET_HEADER_PACKET_TYPE_ALARM_DATA_RESP:
+                case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_ALARM_DATA_RESP:
                 {
                     //本程序只支持非分片
                     if(packet_header.frag_ind==0)

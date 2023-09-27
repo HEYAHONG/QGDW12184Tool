@@ -50,7 +50,7 @@ const char * qgdw12184_frame_packet_header_frag_ind_str(qgdw12184_frame_packet_h
 {
     switch(frag_ind)
     {
-    case QGDW12184_PACKET_HEADER_FRAG_IND_NO_FRAGMENT:
+    case QGDW12184_FRAME_PACKET_HEADER_FRAG_IND_NO_FRAGMENT:
         return "No Fragment";
     default:
         return "Fragment";
@@ -61,21 +61,21 @@ const char *qgdw12184_frame_packet_header_packet_type_str(qgdw12184_frame_packet
 {
     switch(packet_type)
     {
-    case QGDW12184_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA:
+    case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA:
         return "Monitor Data";
-    case QGDW12184_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA_RESP:
+    case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA_RESP:
         return "Monitor Data Resp";
-    case QGDW12184_PACKET_HEADER_PACKET_TYPE_ALARM_DATA:
+    case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_ALARM_DATA:
         return "Alarm Data";
-    case QGDW12184_PACKET_HEADER_PACKET_TYPE_ALARM_DATA_RESP:
+    case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_ALARM_DATA_RESP:
         return "Alarm Data Resp";
-    case QGDW12184_PACKET_HEADER_PACKET_TYPE_CONTROL:
+    case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_CONTROL:
         return "Control";
-    case QGDW12184_PACKET_HEADER_PACKET_TYPE_CONTROL_RESP:
+    case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_CONTROL_RESP:
         return "Control Resp";
-    case QGDW12184_PACKET_HEADER_PACKET_TYPE_FRAGMENT_ACK:
+    case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_FRAGMENT_ACK:
         return "Fragment Ack";
-    case QGDW12184_PACKET_HEADER_PACKET_TYPE_RESERVED:
+    case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_RESERVED:
         return "Reserved";
     }
 }
@@ -259,7 +259,7 @@ void qgdw12184_frame_monitor_no_fragment_parse(uint8_t *frame,size_t frame_len,q
         //分片报文不处理
         return;
     }
-    if(packet_header.packet_type==QGDW12184_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA)
+    if(packet_header.packet_type==QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA)
     {
         uint8_t *data_start=&frame[7];
         size_t data_len=frame_len-9;
@@ -308,7 +308,7 @@ void qgdw12184_frame_monitor_resp_no_fragment_parse(uint8_t *frame,size_t frame_
         //分片报文不处理
         return;
     }
-    if(packet_header.packet_type==QGDW12184_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA_RESP)
+    if(packet_header.packet_type==QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_MONITOR_DATA_RESP)
     {
         uint8_t status=frame[7];
         if(status==QGDW12184_FRAME_MONITOR_RESP_STATUS_SUCCESS)
@@ -343,7 +343,7 @@ void qgdw12184_frame_alarm_no_fragment_parse(uint8_t *frame,size_t frame_len,qgd
         //分片报文不处理
         return;
     }
-    if(packet_header.packet_type==QGDW12184_PACKET_HEADER_PACKET_TYPE_ALARM_DATA)
+    if(packet_header.packet_type==QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_ALARM_DATA)
     {
         uint8_t *data_start=&frame[7];
         size_t data_len=frame_len-9;
@@ -392,7 +392,7 @@ void qgdw12184_frame_alarm_resp_no_fragment_parse(uint8_t *frame,size_t frame_le
         //分片报文不处理
         return;
     }
-    if(packet_header.packet_type==QGDW12184_PACKET_HEADER_PACKET_TYPE_ALARM_DATA_RESP)
+    if(packet_header.packet_type==QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_ALARM_DATA_RESP)
     {
         uint8_t status=frame[7];
         if(status==QGDW12184_FRAME_ALARM_RESP_STATUS_SUCCESS)
