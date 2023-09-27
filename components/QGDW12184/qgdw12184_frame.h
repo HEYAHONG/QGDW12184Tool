@@ -4,6 +4,8 @@
 #include "qgdw12184_crc.h"
 #include "stdint.h"
 #include "stdbool.h"
+#include "stdio.h"
+#include "string.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -63,7 +65,7 @@ typedef enum
     QGDW12184_FRAME_PACKET_HEADER_FRAG_IND_FRAGMENT=1 /**<  分片 */
 } qgdw12184_frame_packet_header_frag_ind_t; /**< 数据包头分片指示 */
 
-/** \brief 数据包头分片指示字符串
+/** \brief QGDW12184 数据包头分片指示字符串
  *
  * \param frag_ind qgdw12184_frame_packet_header_frag_ind_t  数据包头分片指示
  * \return const char* 字符串
@@ -84,7 +86,7 @@ typedef enum
 
 } qgdw12184_frame_packet_header_packet_type_t;/**< 数据包头报文类型 */
 
-/** \brief 数据包头报文类型字符串
+/** \brief QGDW12184 数据包头报文类型字符串
  *
  * \param packet_type qgdw12184_frame_packet_header_packet_type_t 数据包头报文类型
  * \return const char* 字符串
@@ -298,7 +300,73 @@ typedef void (*qgdw12184_frame_alarm_resp_status_callback_t)(void *usr,const qgd
  */
 void qgdw12184_frame_alarm_resp_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_alarm_resp_status_callback_t on_alarm_resp,void *usr);
 
+typedef union
+{
+    uint8_t control_header;
+    struct
+    {
+        uint8_t request_set_flag:1; /**< 参数配置类型，0： 查询； 1： 设置 */
+        uint8_t ctrl_type:7; /**<  控制报文类型 */
+    };
+} qgdw12184_frame_control_header_t;/**< 控制报文头 */
 
+typedef enum
+{
+    QGDW12184_FRAME_CONTROL_HEADER_REQUEST_SET_FLAG_REQUSET=0,/**< 查询 */
+    QGDW12184_FRAME_CONTROL_HEADER_REQUEST_SET_FLAG_SET=1,/**< 设置 */
+} qgdw12184_frame_control_header_request_set_flag_t;/**< 控制报文头参数配置类型 */
+
+/** \brief QGDW12184 控制报文头参数配置类型字符串
+ *
+ * \param flag qgdw12184_frame_control_header_request_set_flag_t 控制报文头参数配置类型
+ * \return const char* 字符串
+ *
+ */
+const char * qgdw12184_frame_control_header_request_set_flag_str(qgdw12184_frame_control_header_request_set_flag_t flag);
+
+typedef enum
+{
+    QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_GENERIC=1,/**< 传感器通用参数查询/设置 */
+    QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_MONITOR=2,/**< 传感器监测数据查询报文 */
+    QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_ALARM=3,/**< 传感器告警参数查询/设置 */
+    QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_TIME=4,/**< 传感器时间参数查询/设置 */
+    QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_SENSOR_ID=5,/**< 传感器ID查询/设置 */
+    QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_RESET=6,/**< 传感器复位设置 */
+    QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_TIME_REQUEST=7,/**< 传感器请求校时 */
+    QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_PROTOCOL_RESERVED_BEGIN=8, /**< 协议扩展预留字段（起始） */
+    QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_PROTOCOL_RESERVED_END=99, /**< 协议扩展预留字段（结束） */
+    QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_VENDOR_RESERVED_BEGIN=100,/**< 厂商自定义预留字段(起始) */
+    QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_VENDOR_RESERVED_END=127, /**< 厂商自定义预留字段(结束) */
+
+} qgdw12184_frame_control_header_ctrl_type_t; /**< 控制报文头控制报文类型 */
+
+
+/** \brief QGDW12184 控制报文头控制报文类型字符串
+ *
+ * \param ctrl_type uint8_t 控制报文头控制报文类型
+ * \return const char* 字符串
+ *
+ */
+const char *qgdw12184_frame_control_header_ctrl_type_str(uint8_t ctrl_type);
+
+
+/** \brief QGDW12184 设置控制报文头
+ *
+ * \param data uint8_t* 控制帧数据（不含传感器地址与包头）起始
+ * \param data_len size_t 控制帧数据（不含传感器地址与包头）长度
+ * \param control_header qgdw12184_frame_control_header_t* 控制报文头
+ *
+ */
+void qgdw12184_frame_set_control_header(uint8_t *data,size_t data_len,qgdw12184_frame_control_header_t *control_header);
+
+/** \brief QGDW12184 获取控制报文头
+ *
+ * \param data uint8_t* 控制帧数据（不含传感器地址与包头）起始
+ * \param data_len size_t 控制帧数据（不含传感器地址与包头）长度
+ * \param control_header qgdw12184_frame_control_header_t*控制报文头
+ *
+ */
+void qgdw12184_frame_get_control_header(uint8_t *data,size_t data_len,qgdw12184_frame_control_header_t *control_header);
 
 #ifdef __cplusplus
 }

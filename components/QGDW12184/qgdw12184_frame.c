@@ -405,3 +405,71 @@ void qgdw12184_frame_alarm_resp_no_fragment_parse(uint8_t *frame,size_t frame_le
         }
     }
 }
+
+const char * qgdw12184_frame_control_header_request_set_flag_str(qgdw12184_frame_control_header_request_set_flag_t flag)
+{
+    switch(flag)
+    {
+    case QGDW12184_FRAME_CONTROL_HEADER_REQUEST_SET_FLAG_REQUSET:
+    {
+        return "Request";
+    }
+    default:
+    {
+        return "Set";
+    }
+    }
+}
+
+const char *qgdw12184_frame_control_header_ctrl_type_str(uint8_t ctrl_type)
+{
+    if(ctrl_type!=0 && ctrl_type <= 127)
+    {
+        if(ctrl_type>=QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_PROTOCOL_RESERVED_BEGIN && ctrl_type <= QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_PROTOCOL_RESERVED_END)
+        {
+            return "Protocol Reserved";
+        }
+        if(ctrl_type>=QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_VENDOR_RESERVED_BEGIN && ctrl_type <= QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_VENDOR_RESERVED_END)
+        {
+            return "Vendor Reserved";
+        }
+        switch(ctrl_type)
+        {
+        case QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_GENERIC:
+            return "Generic";
+        case QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_MONITOR:
+            return "Monitor";
+        case QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_ALARM:
+            return "Alarm";
+        case QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_TIME:
+            return "Time";
+        case QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_SENSOR_ID:
+            return "Sensor Id";
+        case QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_RESET:
+            return "Reset";
+        case QGDW12184_FRAME_CONTROL_HEADER_CTRL_TYPE_TIME_REQUEST:
+            return "Time Request";
+        default:
+            break;
+        }
+    }
+    return "Invalid";
+}
+
+void qgdw12184_frame_set_control_header(uint8_t *data,size_t data_len,qgdw12184_frame_control_header_t *control_header)
+{
+    if(data==NULL || data_len == 0 || control_header==NULL)
+    {
+        return;
+    }
+    data[0]=control_header->control_header;
+}
+
+void qgdw12184_frame_get_control_header(uint8_t *data,size_t data_len,qgdw12184_frame_control_header_t *control_header)
+{
+    if(data==NULL || data_len == 0 || control_header==NULL)
+    {
+        return;
+    }
+    control_header->control_header=data[0];
+}
