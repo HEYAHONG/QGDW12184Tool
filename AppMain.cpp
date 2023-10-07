@@ -210,6 +210,49 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
                     }
                 }
                 break;
+                case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_CONTROL:
+                {
+                    //本程序只支持非分片
+                    if(packet_header.frag_ind==0)
+                    {
+                        auto on_data_content=[](void *usr,const qgdw12184_frame_sensor_id_t *sensor_id,const qgdw12184_frame_packet_header_t *packet_header,uint8_t *data,size_t data_len)
+                        {
+                            AppDialog *dlg=(AppDialog*)usr;
+                            if(dlg!=NULL && data!=NULL && data_len > 0)
+                            {
+                                dlg->AppendFrameParseLog(wxString(_T("Data Content:\n"))+dlg->BinToHex(std::string((const char *)data,data_len))+"\n");
+                                qgdw12184_frame_control_header_t control_header= {0};
+                                qgdw12184_frame_get_control_header(data,data_len,&control_header);
+                                dlg->AppendFrameParseLog(wxString(_T("CtrlType="))+std::to_string(control_header.ctrl_type)+"("+qgdw12184_frame_control_header_ctrl_type_str(static_cast<uint8_t>(control_header.ctrl_type))+")"+",RequestSetFlag="+std::to_string(control_header.request_set_flag)+"("+qgdw12184_frame_control_header_request_set_flag_str(static_cast<qgdw12184_frame_control_header_request_set_flag_t>(control_header.request_set_flag))+")"+"\n");
+                            }
+                        };
+                        qgdw12184_frame_control_no_fragment_parse((uint8_t*)frame_bin.c_str(),frame_bin.length(),on_data_content,this);
+
+
+                    }
+                }
+                break;
+                case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_CONTROL_RESP:
+                {
+                    //本程序只支持非分片
+                    if(packet_header.frag_ind==0)
+                    {
+                        auto on_data_content=[](void *usr,const qgdw12184_frame_sensor_id_t *sensor_id,const qgdw12184_frame_packet_header_t *packet_header,uint8_t *data,size_t data_len)
+                        {
+                            AppDialog *dlg=(AppDialog*)usr;
+                            if(dlg!=NULL && data!=NULL && data_len > 0)
+                            {
+                                dlg->AppendFrameParseLog(wxString(_T("Data Content:\n"))+dlg->BinToHex(std::string((const char *)data,data_len))+"\n");
+                                qgdw12184_frame_control_header_t control_header= {0};
+                                qgdw12184_frame_get_control_header(data,data_len,&control_header);
+                                dlg->AppendFrameParseLog(wxString(_T("CtrlType="))+std::to_string(control_header.ctrl_type)+"("+qgdw12184_frame_control_header_ctrl_type_str(static_cast<uint8_t>(control_header.ctrl_type))+")"+",RequestSetFlag="+std::to_string(control_header.request_set_flag)+"("+qgdw12184_frame_control_header_request_set_flag_str(static_cast<qgdw12184_frame_control_header_request_set_flag_t>(control_header.request_set_flag))+")"+"\n");
+                            }
+
+                        };
+                        qgdw12184_frame_control_resp_no_fragment_parse((uint8_t*)frame_bin.c_str(),frame_bin.length(),on_data_content,this);
+                    }
+                }
+                break;
                 default:
                 {
 
