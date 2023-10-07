@@ -405,6 +405,36 @@ typedef qgdw12184_frame_control_data_content_callback_t qgdw12184_frame_control_
  */
 void qgdw12184_frame_control_resp_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_control_resp_data_content_callback_t on_data_content ,void *usr);
 
+typedef union
+{
+    uint16_t ackdata;
+    struct
+    {
+        uint16_t pseq:7;/**< 协议数据单元序号 */
+        uint16_t priority:1;/**< 协议数据单元优先级 */
+        uint16_t sseq:6;/**< 业务数据单元序号 */
+        uint16_t ack:2;/**< 0=接收错误,3=接收正确,其它=保留 */
+    };
+} qgdw12184_frame_fragment_ack_ackdata_t;/**< 分片响应报文AckData */
+
+/** \brief QGDW12184 设置分片响应报文AckData
+ *
+ * \param data uint8_t* AckData起始地址
+ * \param data_len size_t AckData长度
+ * \param ackdata qgdw12184_frame_fragment_ack_ackdata_t* 分片响应报文AckData
+ *
+ */
+void qgdw12184_frame_set_fragment_ack_ackdata(uint8_t * data,size_t data_len,qgdw12184_frame_fragment_ack_ackdata_t *ackdata);
+
+/** \brief QGDW12184 获取分片响应报文AckData
+ *
+ * \param data uint8_t* AckData起始地址
+ * \param data_len size_t AckData长度
+ * \param ackdata qgdw12184_frame_fragment_ack_ackdata_t* 分片响应报文AckData
+ *
+ */
+void qgdw12184_frame_get_fragment_ack_ackdata(uint8_t * data,size_t data_len,qgdw12184_frame_fragment_ack_ackdata_t *ackdata);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

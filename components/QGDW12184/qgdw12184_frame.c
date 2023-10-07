@@ -527,3 +527,26 @@ void qgdw12184_frame_control_resp_no_fragment_parse(uint8_t *frame,size_t frame_
         on_data_content(usr,&sensor_id,&packet_header,&frame[7],frame_len-9);
     }
 }
+
+void qgdw12184_frame_set_fragment_ack_ackdata(uint8_t * data,size_t data_len,qgdw12184_frame_fragment_ack_ackdata_t *ackdata)
+{
+    if(data==NULL || data_len < 2 || ackdata == NULL)
+    {
+        return;
+    }
+
+    data[0]=ackdata->ackdata&0xFF;
+    data[1]=(ackdata->ackdata>>8)&0xFF;
+}
+
+void qgdw12184_frame_get_fragment_ack_ackdata(uint8_t * data,size_t data_len,qgdw12184_frame_fragment_ack_ackdata_t *ackdata)
+{
+    if(data==NULL || data_len < 2 || ackdata == NULL)
+    {
+        return;
+    }
+
+    ackdata->ackdata=data[1];
+    ackdata->ackdata<<=8;
+    ackdata->ackdata+=data[0];
+}
