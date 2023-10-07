@@ -368,6 +368,43 @@ void qgdw12184_frame_set_control_header(uint8_t *data,size_t data_len,qgdw12184_
  */
 void qgdw12184_frame_get_control_header(uint8_t *data,size_t data_len,qgdw12184_frame_control_header_t *control_header);
 
+
+/** \brief  QGDW12184 控制报文数据回调
+ *
+ * \param usr void* 用户参数(由用户自定义)
+ * \param sensor_id const qgdw12184_frame_sensor_id_t* 传感器id（不可写入）
+ * \param packet_header const qgdw12184_frame_packet_header_t* 数据包头(不可写入)
+ * \param data uint8_t* 控制帧数据（不含传感器地址与包头）起始
+ * \param data_len size_t 控制帧数据（不含传感器地址与包头）长度
+ *
+ */
+typedef void (*qgdw12184_frame_control_data_content_callback_t)(void *usr,const qgdw12184_frame_sensor_id_t *sensor_id,const qgdw12184_frame_packet_header_t *packet_header,uint8_t *data,size_t data_len);
+
+
+/** \brief QGDW12184 控制报文(无分片)解析
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \param on_data_content qgdw12184_frame_control_data_content_callback_t 控制报文数据回调
+ * \param usr void* 用户参数(由用户自定义)
+ *
+ */
+void qgdw12184_frame_control_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_control_data_content_callback_t on_data_content ,void *usr);
+
+
+typedef qgdw12184_frame_control_data_content_callback_t qgdw12184_frame_control_resp_data_content_callback_t;/**< 控制响应报文数据回调 */
+
+
+/** \brief QGDW12184 控制响应报文(无分片)解析
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \param on_data_content qgdw12184_frame_control_resp_data_content_callback_t 控制报文数据回调
+ * \param usr void* 用户参数(由用户自定义)
+ *
+ */
+void qgdw12184_frame_control_resp_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_control_resp_data_content_callback_t on_data_content ,void *usr);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus
