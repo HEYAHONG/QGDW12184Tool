@@ -253,6 +253,26 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
                     }
                 }
                 break;
+                case QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_FRAGMENT_ACK:
+                {
+                    //本程序只支持非分片
+                    if(packet_header.frag_ind==0)
+                    {
+                        auto on_ackdata=[](void *usr,const qgdw12184_frame_sensor_id_t *sensor_id,const qgdw12184_frame_packet_header_t *packet_header,qgdw12184_frame_fragment_ack_ackdata_t *ackdata)
+                        {
+                            AppDialog *dlg=(AppDialog*)usr;
+                            if(dlg!=NULL)
+                            {
+                                char buff[2048]={0};
+                                sprintf(buff,"Ack=%d(%s),SSEQ=%d,Priority=%d(%s),PSEQ=%d\n",(int)ackdata->ack,qgdw12184_frame_fragment_ack_ackdata_ack_str((qgdw12184_frame_fragment_ack_ackdata_ack_t)ackdata->ack),(int)ackdata->sseq,(int)ackdata->priority,qgdw12184_frame_fragment_ack_ackdata_priority_str((qgdw12184_frame_fragment_ack_ackdata_priority_t)ackdata->priority),(int)ackdata->pseq);
+                                dlg->AppendFrameParseLog(buff);
+                            }
+
+                        };
+                        qgdw12184_frame_fragment_ack_no_fragment_parse((uint8_t*)frame_bin.c_str(),frame_bin.length(),on_ackdata,this);
+                    }
+                }
+                break;
                 default:
                 {
 

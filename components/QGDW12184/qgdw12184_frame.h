@@ -419,8 +419,8 @@ typedef union
 
 typedef enum
 {
-    QGDW12184_FRAME_FRAGMENT_ACK_ACKDATA_PRIORITY_LOW=0,
-    QGDW12184_FRAME_FRAGMENT_ACK_ACKDATA_PRIORITY_HIGH=1
+    QGDW12184_FRAME_FRAGMENT_ACK_ACKDATA_PRIORITY_LOW=0,/**< 低优先级 */
+    QGDW12184_FRAME_FRAGMENT_ACK_ACKDATA_PRIORITY_HIGH=1/**< 高优先级 */
 } qgdw12184_frame_fragment_ack_ackdata_priority_t;/**< 分片响应报文AckData的优先级 */
 
 /** \brief QGDW12184 分片响应报文AckData的优先级字符串
