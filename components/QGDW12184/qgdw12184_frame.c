@@ -474,7 +474,7 @@ void qgdw12184_frame_get_control_header(uint8_t *data,size_t data_len,qgdw12184_
     control_header->control_header=data[0];
 }
 
-void qgdw12184_frame_control_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_control_data_content_callback_t on_data_content ,void *usr)
+void qgdw12184_frame_control_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_control_data_content_callback_t on_data_content,void *usr)
 {
     if(frame==NULL || frame_len < 9 || on_data_content==NULL)
     {
@@ -501,7 +501,7 @@ void qgdw12184_frame_control_no_fragment_parse(uint8_t *frame,size_t frame_len,q
     }
 }
 
-void qgdw12184_frame_control_resp_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_control_resp_data_content_callback_t on_data_content ,void *usr)
+void qgdw12184_frame_control_resp_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_control_resp_data_content_callback_t on_data_content,void *usr)
 {
     if(frame==NULL || frame_len < 9 || on_data_content==NULL)
     {
@@ -528,6 +528,36 @@ void qgdw12184_frame_control_resp_no_fragment_parse(uint8_t *frame,size_t frame_
     }
 }
 
+const char * qgdw12184_frame_fragment_ack_ackdata_priority_str(qgdw12184_frame_fragment_ack_ackdata_priority_t priority)
+{
+    switch(priority)
+    {
+    case QGDW12184_FRAME_FRAGMENT_ACK_ACKDATA_PRIORITY_LOW:
+        return "Low";
+    default:
+        return "High";
+    }
+}
+
+const char * qgdw12184_frame_fragment_ack_ackdata_ack_str(qgdw12184_frame_fragment_ack_ackdata_ack_t ack)
+{
+    switch(ack)
+    {
+    case QGDW12184_FRAME_FRAGMENT_ACK_ACKDATA_ACK_ERROR:
+    {
+        return "Error";
+    }
+    case QGDW12184_FRAME_FRAGMENT_ACK_ACKDATA_ACK_OK:
+    {
+        return "Ok";
+    }
+    default:
+    {
+        return "Reserved";
+    }
+    }
+}
+
 void qgdw12184_frame_set_fragment_ack_ackdata(uint8_t * data,size_t data_len,qgdw12184_frame_fragment_ack_ackdata_t *ackdata)
 {
     if(data==NULL || data_len < 2 || ackdata == NULL)
@@ -549,4 +579,33 @@ void qgdw12184_frame_get_fragment_ack_ackdata(uint8_t * data,size_t data_len,qgd
     ackdata->ackdata=data[1];
     ackdata->ackdata<<=8;
     ackdata->ackdata+=data[0];
+}
+
+void qgdw12184_frame_fragment_ack_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_fragment_ack_ackdata_callback_t on_ack_data,void *usr)
+{
+    if(frame==NULL || frame_len < 11 || on_ack_data==NULL)
+    {
+        return;
+    }
+
+    if(!qgdw12184_crc_check(frame,frame_len))
+    {
+        return;
+    }
+
+    qgdw12184_frame_sensor_id_t sensor_id;
+    qgdw12184_frame_get_sensor_id(frame,frame_len,&sensor_id);
+    qgdw12184_frame_packet_header_t packet_header;
+    qgdw12184_frame_get_packet_header(frame,frame_len,&packet_header);
+    if(packet_header.frag_ind==1)
+    {
+        //分片报文不处理
+        return;
+    }
+    if(packet_header.packet_type==QGDW12184_FRAME_PACKET_HEADER_PACKET_TYPE_FRAGMENT_ACK)
+    {
+        qgdw12184_frame_fragment_ack_ackdata_t ackdata= {0};
+        qgdw12184_frame_get_fragment_ack_ackdata(&frame[7],2,&ackdata);
+        on_ack_data(usr,&sensor_id,&packet_header,&ackdata);
+    }
 }

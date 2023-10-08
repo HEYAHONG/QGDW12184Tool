@@ -389,7 +389,7 @@ typedef void (*qgdw12184_frame_control_data_content_callback_t)(void *usr,const 
  * \param usr void* 用户参数(由用户自定义)
  *
  */
-void qgdw12184_frame_control_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_control_data_content_callback_t on_data_content ,void *usr);
+void qgdw12184_frame_control_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_control_data_content_callback_t on_data_content,void *usr);
 
 
 typedef qgdw12184_frame_control_data_content_callback_t qgdw12184_frame_control_resp_data_content_callback_t;/**< 控制响应报文数据回调 */
@@ -403,7 +403,7 @@ typedef qgdw12184_frame_control_data_content_callback_t qgdw12184_frame_control_
  * \param usr void* 用户参数(由用户自定义)
  *
  */
-void qgdw12184_frame_control_resp_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_control_resp_data_content_callback_t on_data_content ,void *usr);
+void qgdw12184_frame_control_resp_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_control_resp_data_content_callback_t on_data_content,void *usr);
 
 typedef union
 {
@@ -416,6 +416,34 @@ typedef union
         uint16_t ack:2;/**< 0=接收错误,3=接收正确,其它=保留 */
     };
 } qgdw12184_frame_fragment_ack_ackdata_t;/**< 分片响应报文AckData */
+
+typedef enum
+{
+    QGDW12184_FRAME_FRAGMENT_ACK_ACKDATA_PRIORITY_LOW=0,
+    QGDW12184_FRAME_FRAGMENT_ACK_ACKDATA_PRIORITY_HIGH=1
+} qgdw12184_frame_fragment_ack_ackdata_priority_t;/**< 分片响应报文AckData的优先级 */
+
+/** \brief QGDW12184 分片响应报文AckData的优先级字符串
+ *
+ * \param priority qgdw12184_frame_fragment_ack_ackdata_priority_t 分片响应报文AckData的优先级
+ * \return const char* 字符串
+ *
+ */
+const char * qgdw12184_frame_fragment_ack_ackdata_priority_str(qgdw12184_frame_fragment_ack_ackdata_priority_t priority);
+
+typedef enum
+{
+    QGDW12184_FRAME_FRAGMENT_ACK_ACKDATA_ACK_ERROR=0,/**< 错误 */
+    QGDW12184_FRAME_FRAGMENT_ACK_ACKDATA_ACK_OK=3 /**< 正确 */
+} qgdw12184_frame_fragment_ack_ackdata_ack_t;/**< 分片响应报文AckData的Ack字段 */
+
+/** \brief QGDW12184 分片响应报文AckData的Ack字段字符串
+ *
+ * \param ack qgdw12184_frame_fragment_ack_ackdata_ack_t 分片响应报文AckData的Ack字段
+ * \return const char* 字符串
+ *
+ */
+const char * qgdw12184_frame_fragment_ack_ackdata_ack_str(qgdw12184_frame_fragment_ack_ackdata_ack_t ack);
 
 /** \brief QGDW12184 设置分片响应报文AckData
  *
@@ -434,6 +462,25 @@ void qgdw12184_frame_set_fragment_ack_ackdata(uint8_t * data,size_t data_len,qgd
  *
  */
 void qgdw12184_frame_get_fragment_ack_ackdata(uint8_t * data,size_t data_len,qgdw12184_frame_fragment_ack_ackdata_t *ackdata);
+
+/** \brief  QGDW12184 分片响应报文AckData
+ *
+ * \param usr void* 用户参数(由用户自定义)
+ * \param sensor_id const qgdw12184_frame_sensor_id_t* 传感器id（不可写入）
+ * \param packet_header const qgdw12184_frame_packet_header_t* 数据包头(不可写入)
+ * \param ackdata qgdw12184_frame_fragment_ack_ackdata_t* 分片响应报文AckData
+ */
+typedef void (*qgdw12184_frame_fragment_ack_ackdata_callback_t)(void *usr,const qgdw12184_frame_sensor_id_t *sensor_id,const qgdw12184_frame_packet_header_t *packet_header,qgdw12184_frame_fragment_ack_ackdata_t *ackdata);
+
+/** \brief QGDW12184 分片响应报文(无分片)解析
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \param on_ack_data qgdw12184_frame_fragment_ack_ackdata_callback_t 分片响应报文AckData
+ * \param usr void* 用户参数(由用户自定义)
+ *
+ */
+void qgdw12184_frame_fragment_ack_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_fragment_ack_ackdata_callback_t on_ack_data,void *usr);
 
 #ifdef __cplusplus
 }
