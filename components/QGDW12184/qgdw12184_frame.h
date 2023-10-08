@@ -407,6 +407,67 @@ void qgdw12184_frame_control_resp_no_fragment_parse(uint8_t *frame,size_t frame_
 
 typedef union
 {
+    uint16_t fragment_header;
+    struct
+    {
+        uint16_t pseq:7;/**< 协议数据单元序号 */
+        uint16_t priority:1;/**< 协议数据单元优先级 */
+        uint16_t sseq:6;/**< 业务数据单元序号 */
+        uint16_t flag:2;/**< 分片属性 */
+    };
+} qgdw12184_frame_fragment_header_t;/**< 分片报文头 */
+
+typedef enum
+{
+    QGDW12184_FRAME_FRAGMENT_HEADER_PRIORITY_LOW=0,/**< 低优先级 */
+    QGDW12184_FRAME_FRAGMENT_HEADER_PRIORITY_HIGH=1/**< 高优先级 */
+} qgdw12184_frame_fragment_header_priority_t;/**< 分片报文头优先级 */
+
+
+/** \brief QGDW12184 分片报文头优先级字符串
+ *
+ * \param priority qgdw12184_frame_fragment_header_priority_t 分片报文头优先级
+ * \return const char* 字符串
+ *
+ */
+const char * qgdw12184_frame_fragment_header_priority_str(qgdw12184_frame_fragment_header_priority_t priority);
+
+typedef enum
+{
+    QGDW12184_FRAME_FRAGMENT_HEADER_FLAG_AG_UNFRAG=0,/**< 没有进行分片 */
+    QGDW12184_FRAME_FRAGMENT_HEADER_FLAG_FRAG_START=1,/**< 第一个分片 */
+    QGDW12184_FRAME_FRAGMENT_HEADER_FLAG_FRAG_NEXT=2,/**< 后续还有分片 */
+    QGDW12184_FRAME_FRAGMENT_HEADER_FLAG_FRAG_STOP=3/**< 最后一个分片 */
+} qgdw12184_frame_fragment_header_flag_t; /**< 分片报文头分片属性 */
+
+/** \brief QGDW12184 分片报文头分片属性字符串
+ *
+ * \param flag qgdw12184_frame_fragment_header_flag_t 分片报文头分片属性
+ * \return const char* 字符串
+ *
+ */
+const char * qgdw12184_frame_fragment_header_flag_str(qgdw12184_frame_fragment_header_flag_t flag);
+
+/** \brief QGDW12184 设置分片报文头
+ *
+ * \param data uint8_t* PDU数据起始地址
+ * \param data_len size_t PDU数据长度
+ * \param header qgdw12184_frame_fragment_header_t* 分片报文头
+ *
+ */
+void qgdw12184_frame_set_fragment_header(uint8_t * data,size_t data_len,qgdw12184_frame_fragment_header_t *header);
+
+/** \brief QGDW12184 获取分片报文头
+ *
+ * \param data uint8_t* PDU数据起始地址
+ * \param data_len size_t PDU数据长度
+ * \param header qgdw12184_frame_fragment_header_t* 分片报文头
+ *
+ */
+void qgdw12184_frame_get_fragment_header(uint8_t * data,size_t data_len,qgdw12184_frame_fragment_header_t *header);
+
+typedef union
+{
     uint16_t ackdata;
     struct
     {
