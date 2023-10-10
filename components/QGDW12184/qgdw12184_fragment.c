@@ -205,7 +205,7 @@ bool qgdw12184_fragment_do_fragment(qgdw12184_fragment_fragment_info_t *info,siz
         //减少已经分片的内容
         SDU_Remain_len-=data_len;
         //检查pseq
-        if(pseq==127)
+        if(pseq==127 && SDU_Remain_len > 0)
         {
             //pseq只有7位，最大值127
             ret=false;
