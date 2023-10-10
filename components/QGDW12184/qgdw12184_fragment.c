@@ -524,6 +524,8 @@ bool qgdw12184_fragment_do_defragment(qgdw12184_fragment_defragment_info_t *info
         return ret;
     }
 
+    ret=true;
+
     qgdw12184_frame_sensor_id_t sensor_id=info->sensor_id;
     qgdw12184_frame_packet_header_t packet_header=info->packet_header;
     //关闭分片
