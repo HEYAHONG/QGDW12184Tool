@@ -216,3 +216,338 @@ bool qgdw12184_fragment_do_fragment(qgdw12184_fragment_fragment_info_t *info,siz
 
     return ret;
 }
+
+typedef struct qgdw12184_fragment_pdu_list
+{
+    struct qgdw12184_fragment_pdu_list *next;
+    qgdw12184_frame_fragment_header_t fragment_header;
+    uint16_t pdu_data_len;
+    uint8_t * pdu_data;
+
+} qgdw12184_fragment_pdu_list_t;
+
+struct qgdw12184_fragment_defragment_info
+{
+    qgdw12184_frame_sensor_id_t sensor_id;/**< 传感器id */
+    qgdw12184_frame_packet_header_t packet_header; /**< 包头 */
+    qgdw12184_fragment_pdu_list_t *list;/**< pdu列表 */
+};
+
+qgdw12184_fragment_defragment_info_t *qgdw12184_fragment_defragment_info_new()
+{
+    qgdw12184_fragment_defragment_info_t *ret=(qgdw12184_fragment_defragment_info_t *)qgdw12184_sysapi_malloc(sizeof(qgdw12184_fragment_defragment_info_t));
+
+    if(ret!=NULL)
+    {
+        memset(ret,0,sizeof(qgdw12184_fragment_defragment_info_t));
+        ret->list=NULL;
+    }
+
+    return ret;
+}
+
+void qgdw12184_fragment_defragment_info_delete(qgdw12184_fragment_defragment_info_t* info)
+{
+    if(info!=NULL)
+    {
+        qgdw12184_fragment_pdu_list_t *list=info->list;
+        while(list!=NULL)
+        {
+            qgdw12184_fragment_pdu_list_t * next_list=list->next;
+            if(list->pdu_data!=NULL)
+            {
+                qgdw12184_sysapi_free(list->pdu_data);
+            }
+            qgdw12184_sysapi_free(list);
+            list=next_list;
+        }
+        qgdw12184_sysapi_free(info);
+    }
+}
+
+bool qgdw12184_fragment_defragment_add_frame(qgdw12184_fragment_defragment_info_t* info,uint8_t *frame,size_t frame_len)
+{
+    if(info==NULL || frame == NULL || frame_len < 7+4+2)
+    {
+        return false;
+    }
+
+    bool ret=false;
+    if(!qgdw12184_crc_check(frame,frame_len))
+    {
+        return ret;
+    }
+
+    qgdw12184_frame_sensor_id_t sensor_id;
+    qgdw12184_frame_get_sensor_id(frame,frame_len,&sensor_id);
+    qgdw12184_frame_packet_header_t packet_header;
+    qgdw12184_frame_get_packet_header(frame,frame_len,&packet_header);
+    if(packet_header.frag_ind==0)
+    {
+        //未分片报文不处理
+        return ret;
+    }
+
+    if(info->list==NULL)
+    {
+        //第一次添加
+        info->sensor_id=sensor_id;
+        info->packet_header=packet_header;
+        uint8_t *data=&frame[7];
+        size_t data_len=frame_len-(7+2);
+        if(data_len < 5)
+        {
+            //至少需要分片头、分片长度及1字节分片数据
+            return ret;
+        }
+        qgdw12184_frame_fragment_header_t fragment_header;
+        qgdw12184_frame_get_fragment_header(data,data_len,&fragment_header);
+
+        qgdw12184_fragment_pdu_list_t *new_pdu=(qgdw12184_fragment_pdu_list_t*)qgdw12184_sysapi_malloc(sizeof(qgdw12184_fragment_pdu_list_t));
+        if(new_pdu==NULL)
+        {
+            return ret;
+        }
+        new_pdu->next=NULL;
+        new_pdu->fragment_header=fragment_header;
+        new_pdu->pdu_data_len=data[3];
+        new_pdu->pdu_data_len<<=8;
+        new_pdu->pdu_data_len+=data[2];
+        if(new_pdu->pdu_data_len==0 || new_pdu->pdu_data_len < (frame_len-7-4-2))
+        {
+            qgdw12184_sysapi_free(new_pdu);
+            return ret;
+        }
+        new_pdu->pdu_data=(uint8_t *)qgdw12184_sysapi_malloc(new_pdu->pdu_data_len);
+        if(new_pdu->pdu_data==NULL)
+        {
+            qgdw12184_sysapi_free(new_pdu);
+            return ret;
+        }
+        //复制分片数据
+        memcpy(new_pdu->pdu_data,&frame[7+4],new_pdu->pdu_data_len);
+
+        info->list=new_pdu;
+
+    }
+    else
+    {
+        //后续添加
+
+        uint8_t *data=&frame[7];
+        size_t data_len=frame_len-(7+2);
+        if(data_len < 5)
+        {
+            //至少需要分片头、分片长度及1字节分片数据
+            return ret;
+        }
+        qgdw12184_frame_fragment_header_t fragment_header;
+        qgdw12184_frame_get_fragment_header(data,data_len,&fragment_header);
+
+        if(sensor_id.manufacturer_id != info->sensor_id.manufacturer_id || sensor_id.version_and_serialnumber != info->sensor_id.version_and_serialnumber)
+        {
+            //不同传感器不予处理
+            return ret;
+        }
+
+        if(packet_header.packet_header != info->packet_header.packet_header)
+        {
+            //不同包头不予处理
+            return ret;
+        }
+
+        if(fragment_header.sseq != info->list->fragment_header.sseq)
+        {
+            //不同sseq不予处理
+            return ret;
+        }
+
+        qgdw12184_fragment_pdu_list_t *new_pdu=(qgdw12184_fragment_pdu_list_t*)qgdw12184_sysapi_malloc(sizeof(qgdw12184_fragment_pdu_list_t));
+        if(new_pdu==NULL)
+        {
+            return ret;
+        }
+        new_pdu->next=NULL;
+        new_pdu->fragment_header=fragment_header;
+        new_pdu->pdu_data_len=data[3];
+        new_pdu->pdu_data_len<<=8;
+        new_pdu->pdu_data_len+=data[2];
+        if(new_pdu->pdu_data_len==0 || new_pdu->pdu_data_len < (frame_len-7-4-2))
+        {
+            qgdw12184_sysapi_free(new_pdu);
+            return ret;
+        }
+        new_pdu->pdu_data=(uint8_t *)qgdw12184_sysapi_malloc(new_pdu->pdu_data_len);
+        if(new_pdu->pdu_data==NULL)
+        {
+            qgdw12184_sysapi_free(new_pdu);
+            return ret;
+        }
+        //复制分片数据
+        memcpy(new_pdu->pdu_data,&frame[7+4],new_pdu->pdu_data_len);
+
+        {
+            //将pseq大的放在末尾
+            qgdw12184_fragment_pdu_list_t *list_current=info->list;
+            if(list_current->fragment_header.pseq > new_pdu->fragment_header.pseq)
+            {
+                //头的pseq大于新pdu的pseq，新pdu作为头
+                new_pdu->next=list_current;
+                info->list=new_pdu;
+                ret=true;
+                return ret;
+            }
+
+            if(list_current->fragment_header.pseq == new_pdu->fragment_header.pseq)
+            {
+                //丢弃相同pseq
+                qgdw12184_sysapi_free(new_pdu->pdu_data);
+                qgdw12184_sysapi_free(new_pdu);
+                return ret;
+            }
+
+            while(list_current!=NULL)
+            {
+                if(list_current->next==NULL)
+                {
+                    if(list_current->fragment_header.pseq < new_pdu->fragment_header.pseq)
+                    {
+                        //插入末尾
+                        list_current->next=new_pdu;
+                        ret=true;
+                    }
+                    else
+                    {
+                        qgdw12184_sysapi_free(new_pdu->pdu_data);
+                        qgdw12184_sysapi_free(new_pdu);
+                    }
+                    break;
+                }
+                else
+                {
+                    if(list_current->fragment_header.pseq == new_pdu->fragment_header.pseq)
+                    {
+                        //丢弃相同pseq
+                        qgdw12184_sysapi_free(new_pdu->pdu_data);
+                        qgdw12184_sysapi_free(new_pdu);
+                        break;
+                    }
+                    if(list_current->fragment_header.pseq < new_pdu->fragment_header.pseq && list_current->next->fragment_header.pseq > new_pdu->fragment_header.pseq )
+                    {
+                        //插入中间
+                        new_pdu->next=list_current->next;
+                        list_current->next=new_pdu;
+                        break;
+                    }
+
+                }
+                list_current=list_current->next;
+            }
+        }
+
+    }
+
+    return ret;
+}
+
+bool qgdw12184_fragment_can_defragment(qgdw12184_fragment_defragment_info_t *info)
+{
+    bool ret=false;
+    if(info==NULL || info->list==NULL)
+    {
+        return ret;
+    }
+    qgdw12184_fragment_pdu_list_t *list_current=info->list;
+
+    if(list_current->fragment_header.pseq!=1)
+    {
+        //pseq起始不为1
+        return ret;
+    }
+    while(list_current!=NULL)
+    {
+        if(list_current->next==NULL)
+        {
+            if(list_current->fragment_header.flag!=QGDW12184_FRAME_FRAGMENT_HEADER_FLAG_FRAG_STOP)
+            {
+                //未结束
+                break;
+            }
+            else
+            {
+                ret=true;
+                break;
+            }
+        }
+        else
+        {
+            if(list_current->fragment_header.pseq != (list_current->next->fragment_header.pseq-1))
+            {
+                //pseq不连续
+                break;
+            }
+        }
+        list_current=list_current->next;
+    }
+    return ret;
+}
+
+bool qgdw12184_fragment_do_defragment(qgdw12184_fragment_defragment_info_t *info,qgdw12184_fragment_defragment_callback_t on_defragment,void *usr)
+{
+    bool ret=false;
+    if(on_defragment==NULL)
+    {
+        return ret;
+    }
+
+    if(!qgdw12184_fragment_can_defragment(info))
+    {
+        return ret;
+    }
+
+    size_t sdu_len=0;
+
+    //统计sdu大小
+    qgdw12184_fragment_pdu_list_t *list_current=info->list;
+    while(list_current!=NULL)
+    {
+        sdu_len+=list_current->pdu_data_len;
+        list_current=list_current->next;
+    }
+    list_current=info->list;
+
+
+    size_t frame_len=sdu_len+9;
+    uint8_t *frame=(uint8_t *)qgdw12184_sysapi_malloc(frame_len);
+    if(frame==NULL)
+    {
+        return ret;
+    }
+
+    qgdw12184_frame_sensor_id_t sensor_id=info->sensor_id;
+    qgdw12184_frame_packet_header_t packet_header=info->packet_header;
+    //关闭分片
+    packet_header.frag_ind=0;
+
+    qgdw12184_frame_set_sensor_id(frame,frame_len,&sensor_id);
+    qgdw12184_frame_set_packet_header(frame,frame_len,&packet_header);
+
+    //复制pdu到帧
+    uint8_t *data=&frame[7];
+    size_t data_len=0;
+    while(list_current!=NULL)
+    {
+        memcpy(&data[data_len],list_current->pdu_data,list_current->pdu_data_len);
+        data_len+=list_current->pdu_data_len;
+        list_current=list_current->next;
+    }
+    list_current=info->list;
+
+    qgdw12184_crc_append(frame,frame_len);
+
+    on_defragment(usr,list_current->fragment_header.sseq,frame,frame_len);
+
+    qgdw12184_sysapi_free(frame);
+
+    return ret;
+}
