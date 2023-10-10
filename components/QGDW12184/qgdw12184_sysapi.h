@@ -58,6 +58,8 @@ int qgdw12184_sysapi_yield();
  */
 extern int (*qgdw12184_sysapi_yield_hook)();
 
+
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus
