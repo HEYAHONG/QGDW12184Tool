@@ -162,7 +162,7 @@ bool qgdw12184_fragment_do_fragment(qgdw12184_fragment_fragment_info_t *info,siz
         qgdw12184_frame_set_sensor_id(frame,frame_len,&sensor_id);
         qgdw12184_frame_set_packet_header(frame,frame_len,&packet_header);
         uint8_t *data=&frame[7];
-        qgdw12184_frame_fragment_header_t fragment_header={0};
+        qgdw12184_frame_fragment_header_t fragment_header= {0};
         fragment_header.sseq=info->SDU.sseq;
         if(priority!=0)
         {
