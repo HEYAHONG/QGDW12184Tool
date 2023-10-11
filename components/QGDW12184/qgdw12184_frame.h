@@ -48,6 +48,42 @@ void qgdw12184_frame_set_sensor_id(uint8_t *frame,size_t frame_len,qgdw12184_fra
  */
 void qgdw12184_frame_get_sensor_id(uint8_t *frame,size_t frame_len,qgdw12184_frame_sensor_id_t *sensor_id);
 
+/** \brief QGDW12184 获取传感器id的厂商ID
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \return uint16_t 厂商ID
+ *
+ */
+uint16_t qgdw12184_frame_get_sensor_id_manufacturer_id(uint8_t *frame,size_t frame_len);
+
+/** \brief QGDW12184 获取传感器id的序列号
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \return uint32_t 序列号
+ *
+ */
+uint32_t qgdw12184_frame_get_sensor_id_serial_number(uint8_t *frame,size_t frame_len);
+
+/** \brief QGDW12184 获取传感器id的版本号
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \return uint32_t 版本号
+ *
+ */
+uint32_t qgdw12184_frame_get_sensor_id_version_number(uint8_t *frame,size_t frame_len);
+
+/** \brief QGDW12184 获取传感器id的版本标签
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \return uint32_t 版本标签
+ *
+ */
+uint32_t qgdw12184_frame_get_sensor_id_version_letter(uint8_t *frame,size_t frame_len);
+
 typedef union
 {
     uint8_t packet_header;
@@ -112,6 +148,51 @@ void qgdw12184_frame_set_packet_header(uint8_t *frame,size_t frame_len,qgdw12184
  *
  */
 void qgdw12184_frame_get_packet_header(uint8_t *frame,size_t frame_len,qgdw12184_frame_packet_header_t *packet_header);
+
+/** \brief QGDW12184 获取数据包头的报文类型
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \return uint8_t 报文类型
+ *
+ */
+uint8_t qgdw12184_frame_get_packet_header_packet_type(uint8_t *frame,size_t frame_len);
+
+/** \brief QGDW12184 获取数据包头的分片指示
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \return uint8_t 分片指示
+ *
+ */
+uint8_t qgdw12184_frame_get_packet_header_frag_ind(uint8_t *frame,size_t frame_len);
+
+/** \brief QGDW12184 获取数据包头的参量个数
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \return uint8_t 参量个数
+ *
+ */
+uint8_t qgdw12184_frame_get_packet_header_data_len(uint8_t *frame,size_t frame_len);
+
+/** \brief QGDW12184 获取数据包数据(即数据包头之后CRC之前的部分)
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \return uint8_t* 获取数据包数据
+ *
+ */
+uint8_t * qgdw12184_frame_get_packet_data_ptr(uint8_t *frame,size_t frame_len);
+
+/** \brief QGDW12184 获取数据包数据(即数据包头之后CRC之前的部分)长度
+ *
+ * \param frame uint8_t* 帧起始地址
+ * \param frame_len size_t 帧长度
+ * \return size_t 数据包数据(即数据包头之后CRC之前的部分)长度
+ *
+ */
+size_t  qgdw12184_frame_get_packet_data_len(uint8_t *frame,size_t frame_len);
 
 typedef union
 {
@@ -368,6 +449,24 @@ void qgdw12184_frame_set_control_header(uint8_t *data,size_t data_len,qgdw12184_
  */
 void qgdw12184_frame_get_control_header(uint8_t *data,size_t data_len,qgdw12184_frame_control_header_t *control_header);
 
+/** \brief QGDW12184 获取控制报文头的参数配置类型
+ *
+ * \param data uint8_t* 控制帧数据（不含传感器地址与包头）起始
+ * \param data_len size_t 控制帧数据（不含传感器地址与包头）长度
+ * \return uint8_t 参数配置类型
+ *
+ */
+uint8_t qgdw12184_frame_get_control_header_request_set_flag(uint8_t *data,size_t data_len);
+
+/** \brief QGDW12184 获取控制报文头的控制报文类型
+ *
+ * \param data uint8_t* 控制帧数据（不含传感器地址与包头）起始
+ * \param data_len size_t 控制帧数据（不含传感器地址与包头）长度
+ * \return uint8_t 控制报文类型
+ *
+ */
+uint8_t qgdw12184_frame_get_control_header_ctrl_type(uint8_t *data,size_t data_len);
+
 
 /** \brief  QGDW12184 控制报文数据回调
  *
@@ -466,6 +565,42 @@ void qgdw12184_frame_set_fragment_header(uint8_t * data,size_t data_len,qgdw1218
  */
 void qgdw12184_frame_get_fragment_header(uint8_t * data,size_t data_len,qgdw12184_frame_fragment_header_t *header);
 
+/** \brief QGDW12184 获取分片报文头的协议数据单元序号
+ *
+ * \param data uint8_t* PDU数据起始地址
+ * \param data_len size_t PDU数据长度
+ * \return uint8_t 协议数据单元序号
+ *
+ */
+uint8_t qgdw12184_frame_get_fragment_header_pseq(uint8_t * data,size_t data_len);
+
+/** \brief QGDW12184 获取分片报文头的协议数据单元优先级
+ *
+ * \param data uint8_t* PDU数据起始地址
+ * \param data_len size_t PDU数据长度
+ * \return uint8_t 协议数据单元优先级
+ *
+ */
+uint8_t qgdw12184_frame_get_fragment_header_priority(uint8_t * data,size_t data_len);
+
+/** \brief QGDW12184 获取分片报文头的业务数据单元序号
+ *
+ * \param data uint8_t* PDU数据起始地址
+ * \param data_len size_t PDU数据长度
+ * \return uint8_t 业务数据单元序号
+ *
+ */
+uint8_t qgdw12184_frame_get_fragment_header_sseq(uint8_t * data,size_t data_len);
+
+/** \brief QGDW12184 获取分片报文头的分片属性
+ *
+ * \param data uint8_t* PDU数据起始地址
+ * \param data_len size_t PDU数据长度
+ * \return uint8_t 分片属性
+ *
+ */
+uint8_t qgdw12184_frame_get_fragment_header_flag(uint8_t * data,size_t data_len);
+
 typedef union
 {
     uint16_t ackdata;
@@ -523,6 +658,42 @@ void qgdw12184_frame_set_fragment_ack_ackdata(uint8_t * data,size_t data_len,qgd
  *
  */
 void qgdw12184_frame_get_fragment_ack_ackdata(uint8_t * data,size_t data_len,qgdw12184_frame_fragment_ack_ackdata_t *ackdata);
+
+/** \brief QGDW12184 获取分片响应报文AckData的协议数据单元序号
+ *
+ * \param data uint8_t* AckData起始地址
+ * \param data_len size_t AckData长度
+ * \return uint8_t 协议数据单元序号
+ *
+ */
+uint8_t qgdw12184_frame_get_fragment_ack_ackdata_pseq(uint8_t * data,size_t data_len);
+
+/** \brief QGDW12184 获取分片响应报文AckData的协议数据单元优先级
+ *
+ * \param data uint8_t* AckData起始地址
+ * \param data_len size_t AckData长度
+ * \return uint8_t 协议数据单元优先级
+ *
+ */
+uint8_t qgdw12184_frame_get_fragment_ack_ackdata_priority(uint8_t * data,size_t data_len);
+
+/** \brief QGDW12184 获取分片响应报文AckData的业务数据单元序号
+ *
+ * \param data uint8_t* AckData起始地址
+ * \param data_len size_t AckData长度
+ * \return uint8_t 业务数据单元序号
+ *
+ */
+uint8_t qgdw12184_frame_get_fragment_ack_ackdata_sseq(uint8_t * data,size_t data_len);
+
+/** \brief QGDW12184 获取分片响应报文AckData的ack
+ *
+ * \param data uint8_t* AckData起始地址
+ * \param data_len size_t AckData长度
+ * \return uint8_t ack
+ *
+ */
+uint8_t qgdw12184_frame_get_fragment_ack_ackdata_ack(uint8_t * data,size_t data_len);
 
 /** \brief  QGDW12184 分片响应报文AckData
  *

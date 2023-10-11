@@ -46,6 +46,34 @@ void qgdw12184_frame_get_sensor_id(uint8_t *frame,size_t frame_len,qgdw12184_fra
     }
 }
 
+uint16_t qgdw12184_frame_get_sensor_id_manufacturer_id(uint8_t *frame,size_t frame_len)
+{
+    qgdw12184_frame_sensor_id_t sensor_id= {0};
+    qgdw12184_frame_get_sensor_id(frame,frame_len,&sensor_id);
+    return sensor_id.manufacturer_id;
+}
+
+uint32_t qgdw12184_frame_get_sensor_id_serial_number(uint8_t *frame,size_t frame_len)
+{
+    qgdw12184_frame_sensor_id_t sensor_id= {0};
+    qgdw12184_frame_get_sensor_id(frame,frame_len,&sensor_id);
+    return sensor_id.serial_number;
+}
+
+uint32_t qgdw12184_frame_get_sensor_id_version_number(uint8_t *frame,size_t frame_len)
+{
+    qgdw12184_frame_sensor_id_t sensor_id= {0};
+    qgdw12184_frame_get_sensor_id(frame,frame_len,&sensor_id);
+    return sensor_id.version_number;
+}
+
+uint32_t qgdw12184_frame_get_sensor_id_version_letter(uint8_t *frame,size_t frame_len)
+{
+    qgdw12184_frame_sensor_id_t sensor_id= {0};
+    qgdw12184_frame_get_sensor_id(frame,frame_len,&sensor_id);
+    return sensor_id.version_letter;
+}
+
 const char * qgdw12184_frame_packet_header_frag_ind_str(qgdw12184_frame_packet_header_frag_ind_t frag_ind)
 {
     switch(frag_ind)
@@ -97,6 +125,51 @@ void qgdw12184_frame_get_packet_header(uint8_t *frame,size_t frame_len,qgdw12184
     }
 
     packet_header->packet_header=frame[6];
+}
+
+uint8_t qgdw12184_frame_get_packet_header_packet_type(uint8_t *frame,size_t frame_len)
+{
+    qgdw12184_frame_packet_header_t packet_header= {0};
+    qgdw12184_frame_get_packet_header(frame,frame_len,&packet_header);
+    return packet_header.packet_type;
+}
+
+uint8_t qgdw12184_frame_get_packet_header_frag_ind(uint8_t *frame,size_t frame_len)
+{
+    qgdw12184_frame_packet_header_t packet_header= {0};
+    qgdw12184_frame_get_packet_header(frame,frame_len,&packet_header);
+    return packet_header.frag_ind;
+}
+
+uint8_t qgdw12184_frame_get_packet_header_data_len(uint8_t *frame,size_t frame_len)
+{
+    qgdw12184_frame_packet_header_t packet_header= {0};
+    qgdw12184_frame_get_packet_header(frame,frame_len,&packet_header);
+    return packet_header.data_len;
+}
+
+uint8_t * qgdw12184_frame_get_packet_data_ptr(uint8_t *frame,size_t frame_len)
+{
+    if(frame!=NULL && frame_len > 9)
+    {
+        return &frame[7];
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+size_t  qgdw12184_frame_get_packet_data_len(uint8_t *frame,size_t frame_len)
+{
+    if(frame!=NULL && frame_len > 9)
+    {
+        return frame_len-9;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 uint16_t qgdw12184_frame_data_type_to_uint(qgdw12184_frame_data_type_t *data_type)
@@ -474,6 +547,20 @@ void qgdw12184_frame_get_control_header(uint8_t *data,size_t data_len,qgdw12184_
     control_header->control_header=data[0];
 }
 
+uint8_t qgdw12184_frame_get_control_header_request_set_flag(uint8_t *data,size_t data_len)
+{
+    qgdw12184_frame_control_header_t control_header= {0};
+    qgdw12184_frame_get_control_header(data,data_len,&control_header);
+    return control_header.request_set_flag;
+}
+
+uint8_t qgdw12184_frame_get_control_header_ctrl_type(uint8_t *data,size_t data_len)
+{
+    qgdw12184_frame_control_header_t control_header= {0};
+    qgdw12184_frame_get_control_header(data,data_len,&control_header);
+    return control_header.ctrl_type;
+}
+
 void qgdw12184_frame_control_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_control_data_content_callback_t on_data_content,void *usr)
 {
     if(frame==NULL || frame_len < 9 || on_data_content==NULL)
@@ -575,6 +662,34 @@ void qgdw12184_frame_get_fragment_header(uint8_t * data,size_t data_len,qgdw1218
     header->fragment_header+=data[0];
 }
 
+uint8_t qgdw12184_frame_get_fragment_header_pseq(uint8_t * data,size_t data_len)
+{
+    qgdw12184_frame_fragment_header_t fragment_header= {0};
+    qgdw12184_frame_get_fragment_header(data,data_len,&fragment_header);
+    return fragment_header.pseq;
+}
+
+uint8_t qgdw12184_frame_get_fragment_header_priority(uint8_t * data,size_t data_len)
+{
+    qgdw12184_frame_fragment_header_t fragment_header= {0};
+    qgdw12184_frame_get_fragment_header(data,data_len,&fragment_header);
+    return fragment_header.priority;
+}
+
+uint8_t qgdw12184_frame_get_fragment_header_sseq(uint8_t * data,size_t data_len)
+{
+    qgdw12184_frame_fragment_header_t fragment_header= {0};
+    qgdw12184_frame_get_fragment_header(data,data_len,&fragment_header);
+    return fragment_header.sseq;
+}
+
+uint8_t qgdw12184_frame_get_fragment_header_flag(uint8_t * data,size_t data_len)
+{
+    qgdw12184_frame_fragment_header_t fragment_header= {0};
+    qgdw12184_frame_get_fragment_header(data,data_len,&fragment_header);
+    return fragment_header.flag;
+}
+
 const char * qgdw12184_frame_fragment_ack_ackdata_priority_str(qgdw12184_frame_fragment_ack_ackdata_priority_t priority)
 {
     switch(priority)
@@ -626,6 +741,34 @@ void qgdw12184_frame_get_fragment_ack_ackdata(uint8_t * data,size_t data_len,qgd
     ackdata->ackdata=data[1];
     ackdata->ackdata<<=8;
     ackdata->ackdata+=data[0];
+}
+
+uint8_t qgdw12184_frame_get_fragment_ack_ackdata_pseq(uint8_t * data,size_t data_len)
+{
+    qgdw12184_frame_fragment_ack_ackdata_t ackdata= {0};
+    qgdw12184_frame_get_fragment_ack_ackdata(data,data_len,&ackdata);
+    return ackdata.pseq;
+}
+
+uint8_t qgdw12184_frame_get_fragment_ack_ackdata_priority(uint8_t * data,size_t data_len)
+{
+    qgdw12184_frame_fragment_ack_ackdata_t ackdata= {0};
+    qgdw12184_frame_get_fragment_ack_ackdata(data,data_len,&ackdata);
+    return ackdata.priority;
+}
+
+uint8_t qgdw12184_frame_get_fragment_ack_ackdata_sseq(uint8_t * data,size_t data_len)
+{
+    qgdw12184_frame_fragment_ack_ackdata_t ackdata= {0};
+    qgdw12184_frame_get_fragment_ack_ackdata(data,data_len,&ackdata);
+    return ackdata.sseq;
+}
+
+uint8_t qgdw12184_frame_get_fragment_ack_ackdata_ack(uint8_t * data,size_t data_len)
+{
+    qgdw12184_frame_fragment_ack_ackdata_t ackdata= {0};
+    qgdw12184_frame_get_fragment_ack_ackdata(data,data_len,&ackdata);
+    return ackdata.ack;
 }
 
 void qgdw12184_frame_fragment_ack_no_fragment_parse(uint8_t *frame,size_t frame_len,qgdw12184_frame_fragment_ack_ackdata_callback_t on_ack_data,void *usr)
