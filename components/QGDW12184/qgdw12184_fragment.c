@@ -408,6 +408,13 @@ bool qgdw12184_fragment_defragment_add_frame(qgdw12184_fragment_defragment_info_
 
             while(list_current!=NULL)
             {
+                if(list_current->fragment_header.pseq == new_pdu->fragment_header.pseq)
+                {
+                    //丢弃相同pseq
+                    qgdw12184_sysapi_free(new_pdu->pdu_data);
+                    qgdw12184_sysapi_free(new_pdu);
+                    break;
+                }
                 if(list_current->next==NULL)
                 {
                     if(list_current->fragment_header.pseq < new_pdu->fragment_header.pseq)
@@ -425,13 +432,6 @@ bool qgdw12184_fragment_defragment_add_frame(qgdw12184_fragment_defragment_info_
                 }
                 else
                 {
-                    if(list_current->fragment_header.pseq == new_pdu->fragment_header.pseq)
-                    {
-                        //丢弃相同pseq
-                        qgdw12184_sysapi_free(new_pdu->pdu_data);
-                        qgdw12184_sysapi_free(new_pdu);
-                        break;
-                    }
                     if(list_current->fragment_header.pseq < new_pdu->fragment_header.pseq && list_current->next->fragment_header.pseq > new_pdu->fragment_header.pseq )
                     {
                         //插入中间
