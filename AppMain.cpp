@@ -263,7 +263,7 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
                             AppDialog *dlg=(AppDialog*)usr;
                             if(dlg!=NULL)
                             {
-                                char buff[2048]={0};
+                                char buff[2048]= {0};
                                 sprintf(buff,"Ack=%d(%s),SSEQ=%d,Priority=%d(%s),PSEQ=%d\n",(int)ackdata->ack,qgdw12184_frame_fragment_ack_ackdata_ack_str((qgdw12184_frame_fragment_ack_ackdata_ack_t)ackdata->ack),(int)ackdata->sseq,(int)ackdata->priority,qgdw12184_frame_fragment_ack_ackdata_priority_str((qgdw12184_frame_fragment_ack_ackdata_priority_t)ackdata->priority),(int)ackdata->pseq);
                                 dlg->AppendFrameParseLog(buff);
                             }
@@ -383,17 +383,24 @@ wxArrayString AppDialog::GetFrameParseInputHex(wxString input)
     wxRegEx reFrame(_T("([0-9a-fA-F]{2}){6,}"));
     if(reFrame.IsValid())
     {
-        if(reFrame.Matches(input_str))
+        while(reFrame.Matches(input_str))
         {
-            size_t str_count=reFrame.GetMatchCount();
-            for(size_t i=0; i<str_count; i++)
             {
-                wxString temp=reFrame.GetMatch(input_str,i);
-                if(temp.Length()<12)
+                size_t start=0;
+                size_t len=0;
+                if(reFrame.GetMatch(&start,&len))
                 {
-                    continue;
+                    wxString temp=input_str.substr(start,len);
+                    if(temp.Length()>=12)
+                    {
+                        ret.push_back(temp);
+                    }
+                    input_str=input_str.substr(start+len);
                 }
-                ret.push_back(temp);
+                else
+                {
+                    break;
+                }
             }
         }
     }
