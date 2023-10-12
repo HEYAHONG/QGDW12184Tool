@@ -363,7 +363,7 @@ void AppDialog::OnButtonClickFragmentDoFragment( wxCommandEvent& event )
                     AppDialog *dlg=(AppDialog*)usr;
                     if(dlg!=NULL)
                     {
-                        dlg->AppendFrameParseLog(wxString::Format(_T("PDU%d:\n%s\n"),(int)pseq,dlg->BinToHex(std::string((char *)frame,frame_len)).c_str()));
+                        dlg->AppendFrameParseLog(wxString::Format(_T("数据帧(含PDU%d):\n%s\n"),(int)pseq,dlg->BinToHex(std::string((char *)frame,frame_len)).c_str()));
                     }
                 };
                 qgdw12184_fragment_do_fragment(info,fragsize,priority,on_fragment,this);
