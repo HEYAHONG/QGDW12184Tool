@@ -52,7 +52,7 @@ typedef void (*qgdw12184_fragment_fragment_callback_t)(void *usr,uint8_t pseq,ui
 /** \brief QGDW12184 是否能分片
  *
  * \param info qgdw12184_fragment_fragment_info_t* qgdw12184_fragment_fragment_info_t结构体
- * \param frag_len size_t 分片大小（主要指除开传感器id、参量个数、分片指示、报文类型、CRC校验的部分），当分片超过(1400-9)字节时按(1400-9)字节计算。
+ * \param frag_len size_t 分片大小（主要指除开传感器id、参量个数、分片指示、报文类型、CRC校验的部分），当分片超过(1400-9-4)字节时按(1400-9-4)字节计算。
  * \return bool 是否能分片
  *
  */
@@ -61,7 +61,7 @@ bool qgdw12184_fragment_can_fragment(qgdw12184_fragment_fragment_info_t *info,si
 /** \brief QGDW12184 帧分片
  *
  * \param info qgdw12184_fragment_fragment_info_t* qgdw12184_fragment_fragment_info_t结构体
- * \param frag_len size_t 分片大小（主要指除开传感器id、参量个数、分片指示、报文类型、CRC校验的部分），当分片超过(1400-9)字节时按(1400-9)字节计算。
+ * \param frag_len size_t 分片大小（主要指除开传感器id、参量个数、分片指示、报文类型、CRC校验的部分），当分片超过(1400-9-4)字节时按(1400-9-4)字节计算。
  * \param priority 优先级
  * \param on_fragment qgdw12184_fragment_fragment_callback_t 帧分片回调
  * \param usr void* 用户参数

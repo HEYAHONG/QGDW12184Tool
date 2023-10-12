@@ -19,6 +19,7 @@
 #include "Version.h"
 #include "qgdw12184_crc.h"
 #include "qgdw12184_frame.h"
+#include "qgdw12184_fragment.h"
 #include "libserialport.h"
 #include <wx/regex.h>
 
@@ -309,6 +310,76 @@ void AppDialog::OnButtonClickCheckFrameParseCRC( wxCommandEvent& event )
         }
     }
 }
+
+void AppDialog::OnButtonClickFragmentDoFragment( wxCommandEvent& event )
+{
+    int fragsize=0;
+    int sseq=0;
+    int priority=0;
+    fragsize=atoi(m_textCtrl_fragment_fragsize->GetValue().ToStdString().c_str());
+    sseq=atoi(m_textCtrl_fragment_sseq->GetValue().ToStdString().c_str());
+    priority=m_choice_fragment_priority->GetSelection();
+    if(fragsize<=0 || fragsize >(1400-9-4))
+    {
+        fragsize=(1400-9-4);
+        AppendFrameParseLog(_T("分片大小非法，将设置为1387\n"));
+    }
+    if(sseq <= 0 || sseq > 63)
+    {
+        sseq=1;
+        AppendFrameParseLog(_T("SSEQ非法，将设置为1\n"));
+    }
+    if(priority < 0 )
+    {
+        priority=0;
+        AppendFrameParseLog(_T("优先级非法，将设置为0\n"));
+    }
+    AppendFrameParseLog(wxString::Format(_T("FragSize=%d,SSEQ=%d,Priority=%d\n"),fragsize,sseq,priority));
+    wxArrayString strlist=GetFrameParseInputHex();
+    for(size_t i=0; i<strlist.size(); i++)
+    {
+        AppendFrameParseLog(wxString(_T("已找到数据帧(Hex):\n"))+strlist[i]+_T("\n"));
+        std::string frame_bin=HexToBin(strlist[i].ToStdString());
+        if(qgdw12184_crc_check((uint8_t*)frame_bin.c_str(),frame_bin.length()))
+        {
+            if(1==qgdw12184_frame_get_packet_header_frag_ind((uint8_t*)frame_bin.c_str(),frame_bin.length()))
+            {
+                AppendFrameParseLog(_T("数据帧已分片!\n"));
+                continue;
+            }
+            qgdw12184_fragment_fragment_info_t *info=qgdw12184_fragment_fragment_info_new();
+            if(info==NULL)
+            {
+                AppendFrameParseLog(_T("内部错误!\n"));
+                continue;
+            }
+
+            qgdw12184_fragment_fragment_set_frame(info,(uint8_t*)frame_bin.c_str(),frame_bin.length(),sseq);
+
+            if(qgdw12184_fragment_can_fragment(info,fragsize))
+            {
+                auto on_fragment=[](void *usr,uint8_t pseq,uint8_t *frame,size_t frame_len)
+                {
+                    AppDialog *dlg=(AppDialog*)usr;
+                    if(dlg!=NULL)
+                    {
+                        dlg->AppendFrameParseLog(wxString::Format(_T("PDU%d:\n%s\n"),(int)pseq,dlg->BinToHex(std::string((char *)frame,frame_len)).c_str()));
+                    }
+                };
+                qgdw12184_fragment_do_fragment(info,fragsize,priority,on_fragment,this);
+                 AppendFrameParseLog(_T("数据帧分片完成!\n"));
+            }
+            else
+            {
+                AppendFrameParseLog(_T("数据帧无需分片!\n"));
+            }
+
+            qgdw12184_fragment_fragment_info_delete(info);
+
+        }
+    }
+}
+
 
 //初始化关于文本框
 void AppDialog::InitAboutTextCtrl(wxTextCtrl* m_ctrl)

@@ -102,9 +102,9 @@ bool qgdw12184_fragment_can_fragment(qgdw12184_fragment_fragment_info_t *info,si
         return ret;
     }
 
-    if(frag_len >= (1400 - 9))
+    if(frag_len >= (1400 - 9-4))
     {
-        frag_len = (1400-9);
+        frag_len = (1400-9-4);
     }
 
     //判断分片大小与SDU大小
@@ -130,9 +130,9 @@ bool qgdw12184_fragment_do_fragment(qgdw12184_fragment_fragment_info_t *info,siz
     {
         return false;
     }
-    if(frag_len >= (1400 - 9))
+    if(frag_len >= (1400 - 9-4))
     {
-        frag_len = (1400-9);
+        frag_len = (1400-9-4);
     }
     bool ret=true;
     qgdw12184_frame_sensor_id_t sensor_id=info->sensor_id;
