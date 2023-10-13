@@ -31,6 +31,7 @@ private:
     virtual void OnButtonClickGetFrameParseHEX( wxCommandEvent& event );
     virtual void OnButtonClickCheckFrameParseCRC( wxCommandEvent& event );
     virtual void OnButtonClickFragmentDoFragment( wxCommandEvent& event );
+    virtual void OnButtonClickFragmentDoDefragment( wxCommandEvent& event );
     //初始化关于文本框
     void InitAboutTextCtrl(wxTextCtrl* m_ctrl);
     //清除帧分析日志

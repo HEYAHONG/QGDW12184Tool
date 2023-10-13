@@ -367,7 +367,7 @@ void AppDialog::OnButtonClickFragmentDoFragment( wxCommandEvent& event )
                     }
                 };
                 qgdw12184_fragment_do_fragment(info,fragsize,priority,on_fragment,this);
-                 AppendFrameParseLog(_T("数据帧分片完成!\n"));
+                AppendFrameParseLog(_T("数据帧分片完成!\n"));
             }
             else
             {
@@ -380,6 +380,64 @@ void AppDialog::OnButtonClickFragmentDoFragment( wxCommandEvent& event )
     }
 }
 
+void AppDialog::OnButtonClickFragmentDoDefragment( wxCommandEvent& event )
+{
+    AppendFrameParseLog(_T("重组需要某一数据帧的所有分片，且需要可显示的非HEX字符（如-）作为分片的间隔!\n"));
+    wxArrayString strlist=GetFrameParseInputHex();
+    if(strlist.size() == 0)
+    {
+        return;
+    }
+    if(strlist.size() < 2)
+    {
+        AppendFrameParseLog(_T("单个数据帧不可重组!\n"));
+        return;
+    }
+    qgdw12184_fragment_defragment_info_t *info=qgdw12184_fragment_defragment_info_new();
+    if(info==NULL)
+    {
+        AppendFrameParseLog(_T("内部错误!\n"));
+        return;
+    }
+    for(size_t i=0; i<strlist.size(); i++)
+    {
+        AppendFrameParseLog(wxString(_T("已找到数据帧(Hex):\n"))+strlist[i]+_T("\n"));
+        std::string frame_bin=HexToBin(strlist[i].ToStdString());
+        if(qgdw12184_crc_check((uint8_t*)frame_bin.c_str(),frame_bin.length()))
+        {
+            if(0==qgdw12184_frame_get_packet_header_frag_ind((uint8_t*)frame_bin.c_str(),frame_bin.length()))
+            {
+                AppendFrameParseLog(_T("数据帧未分片!\n"));
+                continue;
+            }
+
+            qgdw12184_fragment_defragment_add_frame(info,(uint8_t*)frame_bin.c_str(),frame_bin.length());
+            AppendFrameParseLog(_T("数据帧已添加!\n"));
+        }
+    }
+
+
+    if(qgdw12184_fragment_can_defragment(info))
+    {
+        auto on_defragment=[](void *usr,uint8_t sseq,uint8_t *frame,size_t frame_len)
+        {
+            AppDialog *dlg=(AppDialog*)usr;
+            if(dlg!=NULL)
+            {
+                dlg->AppendFrameParseLog(wxString::Format(_T("数据帧(含SDU（%d）):\n%s\n"),(int)sseq,dlg->BinToHex(std::string((char *)frame,frame_len)).c_str()));
+            }
+        };
+        qgdw12184_fragment_do_defragment(info,on_defragment,this);
+    }
+    else
+    {
+        AppendFrameParseLog(_T("分片不够，不可重组!\n"));
+    }
+
+
+    qgdw12184_fragment_defragment_info_delete(info);
+
+}
 
 //初始化关于文本框
 void AppDialog::InitAboutTextCtrl(wxTextCtrl* m_ctrl)

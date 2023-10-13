@@ -51,6 +51,8 @@ class GUIDialog : public wxDialog
 		wxTextCtrl* m_textCtrl_fragment_sseq;
 		wxChoice* m_choice_fragment_priority;
 		wxButton* m_button_fragment_do_fragment;
+		wxStaticLine* m_staticline3;
+		wxButton* m_button_fragment_do_defragment;
 		wxTextCtrl* m_textCtrl_frame_parse_log;
 		wxPanel* m_panel_about;
 		wxTextCtrl* m_textCtrl_about;
@@ -61,6 +63,7 @@ class GUIDialog : public wxDialog
 		virtual void OnButtonClickGetFrameParseHEX( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnButtonClickCheckFrameParseCRC( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnButtonClickFragmentDoFragment( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnButtonClickFragmentDoDefragment( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:

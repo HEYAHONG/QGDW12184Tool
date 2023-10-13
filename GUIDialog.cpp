@@ -95,6 +95,12 @@ GUIDialog::GUIDialog( wxWindow* parent, wxWindowID id, const wxString& title, co
 	m_button_fragment_do_fragment = new wxButton( m_panel_frame_parse, wxID_ANY, wxT("分片"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer3->Add( m_button_fragment_do_fragment, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
+	m_staticline3 = new wxStaticLine( m_panel_frame_parse, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	bSizer3->Add( m_staticline3, 0, wxEXPAND | wxALL, 5 );
+
+	m_button_fragment_do_defragment = new wxButton( m_panel_frame_parse, wxID_ANY, wxT("重组"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer3->Add( m_button_fragment_do_defragment, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
 
 	gSizer1->Add( bSizer3, 0, 0, 5 );
 
@@ -131,6 +137,7 @@ GUIDialog::GUIDialog( wxWindow* parent, wxWindowID id, const wxString& title, co
 	m_button_get_frame_parse_hex->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialog::OnButtonClickGetFrameParseHEX ), NULL, this );
 	m_button_check_frame_parse_crc->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialog::OnButtonClickCheckFrameParseCRC ), NULL, this );
 	m_button_fragment_do_fragment->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialog::OnButtonClickFragmentDoFragment ), NULL, this );
+	m_button_fragment_do_defragment->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialog::OnButtonClickFragmentDoDefragment ), NULL, this );
 }
 
 GUIDialog::~GUIDialog()
@@ -141,6 +148,7 @@ GUIDialog::~GUIDialog()
 	m_button_get_frame_parse_hex->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialog::OnButtonClickGetFrameParseHEX ), NULL, this );
 	m_button_check_frame_parse_crc->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialog::OnButtonClickCheckFrameParseCRC ), NULL, this );
 	m_button_fragment_do_fragment->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialog::OnButtonClickFragmentDoFragment ), NULL, this );
+	m_button_fragment_do_defragment->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( GUIDialog::OnButtonClickFragmentDoDefragment ), NULL, this );
 
 	m_mgr.UnInit();
 
