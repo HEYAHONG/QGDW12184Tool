@@ -210,6 +210,47 @@ void qgdw12184_frame_get_data_header(uint8_t *data,size_t data_len,qgdw12184_fra
     data_header->data_header+=data[0];
 }
 
+uint16_t qgdw12184_frame_get_data_header_data_length_flag(uint8_t *data,size_t data_len)
+{
+    qgdw12184_frame_data_header_t data_header= {0};
+    qgdw12184_frame_get_data_header(data,data_len,&data_header);
+    return data_header.data_length_flag;
+}
+
+uint16_t qgdw12184_frame_get_data_header_data_type(uint8_t *data,size_t data_len)
+{
+    qgdw12184_frame_data_header_t data_header= {0};
+    qgdw12184_frame_get_data_header(data,data_len,&data_header);
+    return data_header.data_type;
+}
+
+uint16_t qgdw12184_frame_get_data_length_flag_from_data_content_length(size_t data_length)
+{
+    if(data_length==4)
+    {
+        //默认4字节
+        return 0;
+    }
+
+    if(data_length < 0x100)
+    {
+        return 1;
+    }
+
+    if(data_length < 0x10000)
+    {
+        return 2;
+    }
+
+    //最大3字节(超过3字节也按3字节计算)
+    return 3;
+}
+
+size_t qgdw12184_frame_get_data_capacity_from_data_content_length(size_t data_length)
+{
+    return sizeof(qgdw12184_frame_data_header_t)+qgdw12184_frame_get_data_length_flag_from_data_content_length(data_length)+data_length;
+}
+
 size_t qgdw12184_frame_get_data_capacity(uint8_t *data,size_t data_len)
 {
     size_t ret=0;

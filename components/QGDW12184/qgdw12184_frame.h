@@ -250,6 +250,42 @@ void qgdw12184_frame_set_data_header(uint8_t *data,size_t data_len,qgdw12184_fra
  */
 void qgdw12184_frame_get_data_header(uint8_t *data,size_t data_len,qgdw12184_frame_data_header_t *data_header);
 
+/** \brief QGDW12184 从(单个)参量数据获取参量头数据长度
+ *
+ * \param data uint8_t* (单个)参量数据起始地址
+ * \param data_len size_t (单个)参量数据长度（可大不可小）
+ * \return uint16_t 参量头数据长度
+ *
+ */
+uint16_t qgdw12184_frame_get_data_header_data_length_flag(uint8_t *data,size_t data_len);
+
+/** \brief QGDW12184 从(单个)参量数据获取参量头参量类型(Uint类型)
+ *
+ * \param data uint8_t* (单个)参量数据起始地址
+ * \param data_len size_t (单个)参量数据长度（可大不可小）
+ * \return uint16_t 参量头参量类型(Uint类型)
+ *
+ */
+uint16_t qgdw12184_frame_get_data_header_data_type(uint8_t *data,size_t data_len);
+
+/** \brief QGDW12184 通过参量内容长度获取获取参量头数据长度
+ *
+ * \param data_length size_t 参量内容长度(按字节计算)
+ * \return uint16_t 参量头数据长度(按字节计算)
+ *
+ */
+uint16_t qgdw12184_frame_get_data_length_flag_from_data_content_length(size_t data_length);
+
+
+/** \brief QGDW12184 通过参量内容长度获取(单个)参量占用空间
+ *
+ * \param data_length size_t 参量内容长度(按字节计算)
+ * \return size_t (单个)参量占用空间(包括参量头、参量数据长度，参量数据内容)，失败返回0
+ *
+ */
+size_t qgdw12184_frame_get_data_capacity_from_data_content_length(size_t data_length);
+
+
 /** \brief QGDW12184 获取(单个)参量占用空间
  *
  * \param data uint8_t* (单个)参量数据起始地址
