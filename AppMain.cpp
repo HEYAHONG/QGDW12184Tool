@@ -22,6 +22,7 @@
 #include "qgdw12184_fragment.h"
 #include "libserialport.h"
 #include <wx/regex.h>
+#include "inttypes.h"
 
 AppDialog::AppDialog(wxDialog *dlg)
     : GUIDialog(dlg)
@@ -108,6 +109,19 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
                                         dlg->AppendFrameParseLog(_T("\t"));
                                         dlg->AppendFrameParseLog(dlg->BinToHex(data));
                                         dlg->AppendFrameParseLog(_T("\n"));
+                                        if(data_content_length==4)
+                                        {
+                                            //四字节数据(可能是浮点数)
+                                            uint32_t data;
+                                            data=data_content[3];
+                                            data<<=8;
+                                            data+=data_content[2];
+                                            data<<=8;
+                                            data+=data_content[1];
+                                            data<<=8;
+                                            data+=data_content[0];
+                                            dlg->AppendFrameParseLog(wxString::Format(_T("\tuint32_t:%" PRIu32 ",int32_t:%" PRId32 ",float:%f\n"),data,*(int32_t*)&data,*(float*)&data));
+                                        }
                                     }
                                 }
 
@@ -171,6 +185,19 @@ void AppDialog::OnButtonClickGetFrameParseHEX( wxCommandEvent& event )
                                         dlg->AppendFrameParseLog(_T("\t"));
                                         dlg->AppendFrameParseLog(dlg->BinToHex(data));
                                         dlg->AppendFrameParseLog(_T("\n"));
+                                        if(data_content_length==4)
+                                        {
+                                            //四字节数据(可能是浮点数)
+                                            uint32_t data;
+                                            data=data_content[3];
+                                            data<<=8;
+                                            data+=data_content[2];
+                                            data<<=8;
+                                            data+=data_content[1];
+                                            data<<=8;
+                                            data+=data_content[0];
+                                            dlg->AppendFrameParseLog(wxString::Format(_T("\tuint32_t:%" PRIu32 ",int32_t:%" PRId32 ",float:%f\n"),data,*(int32_t*)&data,*(float*)&data));
+                                        }
                                     }
                                 }
 
